@@ -54,5 +54,51 @@ tail(allstocks[["AAL"]])
 # head(AAPL)
 # tail(AAPL)
 
-rm(i)
+
+
+stocks$start_date = rep(NA, times = nrow(stocks))
+stocks$end_date = rep(NA, times = nrow(stocks))
+stocks$obs = rep(NA, times = nrow(stocks))
+
+for(stockn in stocks$stockname){
+#  stocks$start_date = allstocks[[stock]][1,0]
+#  stocks$end_date = allstocks[[stock]][1,0] 
+#  print(stocks[which(stocks$stockname==stockn),] )  
+#  print(stocks[[which(stocks$stockname==stockn),"start_date"]]) 
+#  print(index(allstocks[[stockn]][1,0]))
+  stocks[[which(stocks$stockname==stockn),"start_date"]] = index(allstocks[[stockn]][1,0])
+  stocks[[which(stocks$stockname==stockn),"end_date"]] = index(allstocks[[stockn]][nrow(allstocks[[stockn]]),0]) 
+  stocks[[which(stocks$stockname==stockn),"obs"]] = nrow(allstocks[[stockn]]) 
+}
+
+stocks$start_date = as.Date(stocks$start_date) 
+stocks$end_date = as.Date(stocks$end_date) 
+
+stockn ="AAL" 
+
+HARmeasures = list() 
+
+# Compute measures for realized HAR models 
+
+for(stockn in stocks$stockname){
+  TT <- length(allstocks[[stockn]]$RV)
+  RV_0 <- as.numeric(allstocks[[stockn]]$RV[23:TT])
+  RV_1 <- as.numeric(allstocks[[stockn]]$RV[22:(TT - 1)])
+  RV_5 <- unlist(lapply(lapply(1:(TT - 4), function (t) {return(RV_0[t:(t + 4)])}), mean))
+  T_5 <- length(RV_5)
+  RV_5 <- RV_5[18:(T_5 - 1)]
+  RV_22 <- unlist(lapply(lapply(1:(TT - 21), function (t) {return(RV_0[t:(t + 21)])}), mean))
+  T_22 <- length(RV_22)
+  RV_22 <- RV_22[1:(T_22 - 1)]
+  RV_n <- as.numeric(allstocks[[stockn]]$RSm[22:(TT - 1)])
+  RV_p <- as.numeric(allstocks[[stockn]]$RSp[22:(TT - 1)])
+  RK <- as.numeric(allstocks[[stockn]]$RKu[22:(TT - 1)])     # TODO: What is this?!? 
+  RS <- as.numeric(allstocks[[stockn]]$RSk[22:(TT - 1)])     # TODO: What is this?!? 
+
+  output = data.frame(RV_0, RV_1, RV_5, RV_22, RV_n, RV_p, RK, RS)  
+  HARmeasures[[stockn]] = output 
+}
+
+rm(list=setdiff(ls(), c("allstocks", "HARmeasures","stocks")))
+
 save.image("Data/stocks.RData")

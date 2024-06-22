@@ -35,6 +35,10 @@ HARS_fit = list()
 HARSK_fit = list() 
 RGARCH_fit = list()
 ARMAGARCH_fit = list() 
+RGARCH = list() 
+
+
+
 
 stocks$JBpval_AR1_RV_fit = rep(NA, times = nrow(stocks))
 stocks$JBpval_HAR_fit = rep(NA, times = nrow(stocks))
@@ -43,6 +47,7 @@ stocks$JBpval_HARS_fit = rep(NA, times = nrow(stocks))
 stocks$JBpval_HARSK_fit = rep(NA, times = nrow(stocks))
 stocks$JBpval_RGARCH_fit =rep(NA, times = nrow(stocks))
 stocks$JBpval_ARMAGARCH_fit =rep(NA, times = nrow(stocks))  
+
 
 # All model fittings - runs approximately 15 minutes. 
 start_time = Sys.time()
@@ -88,6 +93,13 @@ for(stockn in stocks$stockname){
 end_time = Sys.time()
 print(end_time-start_time)
 
+
+
+
+
+
+
+
 save(allstocks, file = "Data/allstocks.Rdata") 
 save(AR1_RV_fit, file = "Data/AR1_RV_fit.Rdata") 
 save(ARMAGARCH_fit, file = "Data/ARMAGARCH_fit.Rdata") 
@@ -99,4 +111,5 @@ save(HARS_fit, file = "Data/HARSK_fit.Rdata")
 save(RGARCH_fit, file = "Data/RGARCH_fit.Rdata") 
 save(stocks, file = "Data/stocks.Rdata")
 save(varstokeep, file = "Data/varstokeep.Rdata")  
-
+save(RGARCH, file = "Data/RGARCH.Rdata")
+save(ARMAGARCH, file = "Data/ARMAGARCH.Rdata")

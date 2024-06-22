@@ -4,6 +4,9 @@ library(arrow)
 library(xts)
 
 
+varstokeep = c("allstocks", "HARmeasures","stocks", "varstokeep") 
+
+
 #read all filenames 
 stocks = as.data.frame(list.files("Data/parquet"))
 
@@ -99,6 +102,6 @@ for(stockn in stocks$stockname){
   HARmeasures[[stockn]] = output 
 }
 
-rm(list=setdiff(ls(), c("allstocks", "HARmeasures","stocks")))
+rm(list=setdiff(ls(), varstokeep))
 
 save.image("Data/stocks.RData")

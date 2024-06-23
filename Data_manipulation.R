@@ -4,7 +4,7 @@ library(arrow)
 library(xts)
 
 
-varstokeep = c("allstocks", "HARmeasures","stocks", "varstokeep") 
+#  varstokeep = c("allstocks", "HARmeasures","stocks", "varstokeep") 
 
 
 #read all filenames 
@@ -95,7 +95,7 @@ stocks$enough_pre_covid_obs = rep(NA, times = nrow(stocks))
 
 
 for(stockn in stocks$stockname){
-  stocks[which(stocks$stockname == stockn),]$enough_pre_covid_obs = (sum(index(allstocks[[stockn]])<pre_covid_end_date)>minimum_length) 
+  stocks[which(stocks$stockname == stockn),]$enough_pre_covid_obs = (sum(index(allstocks[[stockn]])<pre_covid_end_date)>minimum_length+n_for) 
 }
 
 stocks_to_remove = c(which(stocks$enough_pre_covid_obs == FALSE)) 
@@ -144,13 +144,19 @@ for(stockn in stocks$stockname){
 }
 
 
+for(stockn in stocks$stockname){
+  print(stockn)
+  #  stocks$w_l[which(stocks$stockname == stockn)] = round(stocks[which(stocks$stockname == stockn),"obs"]*1/2) 
+  stocks$w_l[which(stocks$stockname == stockn)] = which(index(allstocks[[stockn]]) == pre_covid_end_date) 
+  #  stocks$n_for[which(stocks$stockname == stockn)] = round(stocks[which(stocks$stockname == stockn),"obs"]*1/6)
+  stocks$n_for[which(stocks$stockname == stockn)] = 66 
+}
 
 
-rm(list=setdiff(ls(), varstokeep))
+# rm(list=setdiff(ls(), varstokeep))
 
 save.image("Data/stocks.RData")
 
-
-
-
-
+save(stocks, file = "Data/stocks.Rdata")  
+save(allstocks, file = "Data/allstocks.Rdata")  
+save(HARmeasures, file = "Data/HARmeasures.Rdata")

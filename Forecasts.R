@@ -38,18 +38,11 @@ stocks$w_l[which(stocks$stockname == stockn)] = which(index(allstocks[[stockn]])
 
 index(allstocks[[stockn]])[1500:1600]
 
-# TODO: Change data subset 
-for(stockn in stocks$stockname){
-print(stockn)
-  #  stocks$w_l[which(stocks$stockname == stockn)] = round(stocks[which(stocks$stockname == stockn),"obs"]*1/2) 
-  stocks$w_l[which(stocks$stockname == stockn)] = which(index(allstocks[[stockn]]) == pre_covid_end_date) 
-#  stocks$n_for[which(stocks$stockname == stockn)] = round(stocks[which(stocks$stockname == stockn),"obs"]*1/6)
-  stocks$n_for[which(stocks$stockname == stockn)] = 66 
-}
+
 
 
 # TODO: Repeat with correct data subset 
-# Runs approximately 45 minutes 
+# Runs approximately 3 minutes 
 start_time = Sys.time()
 counter = 1 
 
@@ -84,8 +77,7 @@ end_time = Sys.time()
 print(end_time-start_time)
 
 
-# TODO: Repeat with correct data subset 
-# Runs almost 2 hours 
+# Runs approxiately 3 minutes  
 start_time = Sys.time()
 counter = 1 
 
@@ -123,8 +115,8 @@ print(end_time-start_time)
 
 
 
-# TODO: Repeat with correct data subset 
-# Runs approximately 4.5 hours  
+# Done with correct data 
+# Runs approximately 5 hours  
 
 start_time = Sys.time()
 counter = 1 
@@ -212,10 +204,172 @@ save(RGARCH_fc_e, file = "Data/RGARCH_fc_e.Rdata")
 end_time2 = Sys.time()
 print(end_time2-start_time2)
 
-print("ARMAGARCH running time: ") 
-print(start_time - end_time)
 
-print("RGARCH running time: ") 
-print(start_time2 - end_time2) 
 
-max(stocks$start_date) 
+stockn = "AAL"
+
+stocks[,c("stockname","w_l")]
+
+tail(data_aux)
+
+
+data_aux = list() 
+TT = list() 
+RV_5 = list() 
+RV_22 = list() 
+T_5 = list() 
+T_22 = list() 
+HAR_DATA = list() 
+
+
+# Preparation for other HAR models 
+
+counter = 1 
+for(stockn in stocks$stockname){
+  print(counter)
+  data_aux[[stockn]] <- allstocks[[stockn]][1:(stocks[which(stocks$stockname == stockn),"w_l"]+stocks[which(stocks$stockname == stockn),"n_for"]),]
+  TT[[stockn]] <- nrow(data_aux[[stockn]])
+  RV_5[[stockn]] <- unlist(lapply(lapply(1:(TT[[stockn]] - 4), function (x) {return(data_aux[[stockn]]$RV[x:(x + 4)])}), mean))
+  RV_22[[stockn]] <- unlist(lapply(lapply(1:(TT[[stockn]] - 21), function (x) {return(data_aux[[stockn]]$RV[x:(x + 21)])}), mean))
+  T_5[[stockn]] <- length(RV_5[[stockn]])
+  T_22[[stockn]] <- length(RV_22[[stockn]])
+  HAR_DATA[[stockn]] <- data.frame(data_aux[[stockn]]$RV[23:TT[[stockn]]],
+                                   data_aux[[stockn]]$RSp[22:(TT[[stockn]] - 1)],
+                                   data_aux[[stockn]]$RSm[22:(TT[[stockn]] - 1)],
+                                   RV_5[[stockn]][18:(T_5[[stockn]] - 1)],
+                                   RV_22[[stockn]][1:(T_22[[stockn]] - 1)],
+                                   data_aux[[stockn]]$RKu[22:(TT[[stockn]] - 1)],
+                                   data_aux[[stockn]]$RSk[22:(TT[[stockn]] - 1)])
+  colnames(HAR_DATA[[stockn]]) <- c("RV","RV_p","RV_n","RV_5","RV_22", "RK", "RS") 
+
+counter = counter + 1   
+}
+
+
+
+HAR_AS_fc_r = list() 
+HAR_AS_fc_e = list() 
+HAR_RS_fc_r = list() 
+HAR_RS_fc_e = list() 
+HAR_RSRK_fc_r = list() 
+HAR_RSRK_fc_e  = list() 
+
+
+
+# HAR-AS 
+
+counter = 1 
+
+for(stockn in stocks$stockname){
+  print(counter)
+  
+  n_for = stocks[which(stocks$stockname == stockn),"n_for"] 
+  w_l = stocks[which(stocks$stockname == stockn),"w_l"]
+  
+  HAR_AS_fc_r[[stockn]] <- rep(NA, n_for)
+  for (i in 0:(n_for - 1)) {
+    temp <- HAR_DATA[[stockn]][1+ i:(w_l + i - 22), ] %>% ts()
+    fc_data <- HAR_DATA[[stockn]][w_l + i + 1 - 22, -1]
+    model <- tslm(RV ~ RV_n + RV_p + RV_5 + RV_22, data = temp)
+    HAR_AS_fc_r[[stockn]][i + 1] <- predict(model, newdata=fc_data)
+  }
+  
+  HAR_AS_fc_r[[stockn]]<-xts(HAR_AS_fc_r[[stockn]],order.by = index(allstocks[[stockn]]$ret[(w_l+1):(w_l+n_for)]))
+  
+  HAR_AS_fc_e[[stockn]] <- rep(NA, n_for)
+  for (i in 0:(n_for - 1)) {
+    temp <- HAR_DATA[[stockn]][1:(w_l + i - 22), ] %>% ts()
+    fc_data <- HAR_DATA[[stockn]][w_l + i + 1 - 22, -1]
+    model <- tslm(RV ~ RV_n + RV_p + RV_5 + RV_22, data = temp)
+    HAR_AS_fc_e[[stockn]][i + 1] <- predict(model, newdata=fc_data)
+  }
+  
+  HAR_AS_fc_e[[stockn]]<-xts(HAR_AS_fc_e[[stockn]],order.by = index(allstocks[[stockn]]$ret[(w_l+1):(w_l+n_for)]))
+  
+  counter = counter + 1 
+}
+
+save(HAR_AS_fc_r, file = "Data/HAR_AS_fc_r.Rdata")  
+save(HAR_AS_fc_e, file = "Data/HAR_AS_fc_e.Rdata")  
+
+
+#HAR-RS 
+
+counter = 1 
+
+for(stockn in stocks$stockname){
+  print(counter)
+  
+  n_for = stocks[which(stocks$stockname == stockn),"n_for"] 
+  w_l = stocks[which(stocks$stockname == stockn),"w_l"]
+  
+  HAR_RS_fc_r[[stockn]] <- rep(NA, n_for)
+  for (i in 0:(n_for - 1)) {
+    temp <- HAR_DATA[[stockn]][1+ i:(w_l + i - 22), ] %>% ts()
+    fc_data <- HAR_DATA[[stockn]][w_l + i + 1 - 22, -1]
+    model <- tslm(RV ~ RS + RV_5 + RV_22, data = temp)
+    HAR_RS_fc_r[[stockn]][i + 1] <- predict(model, newdata=fc_data)
+  }
+  
+  HAR_RS_fc_r[[stockn]]<-xts(HAR_RS_fc_r[[stockn]],order.by = index(allstocks[[stockn]]$ret[(w_l+1):(w_l+n_for)]))
+  
+  HAR_RS_fc_e[[stockn]] <- rep(NA, n_for)
+  for (i in 0:(n_for - 1)) {
+    temp <- HAR_DATA[[stockn]][1:(w_l + i - 22), ] %>% ts()
+    fc_data <- HAR_DATA[[stockn]][w_l + i + 1 - 22, -1]
+    model <- tslm(RV ~ RS + RV_5 + RV_22, data = temp)
+    HAR_RS_fc_e[[stockn]][i + 1] <- predict(model, newdata=fc_data)
+  }
+
+  HAR_RS_fc_e[[stockn]]<-xts(HAR_RS_fc_e[[stockn]],order.by = index(allstocks[[stockn]]$ret[(w_l+1):(w_l+n_for)]))
+  counter = counter + 1 
+}
+
+save(HAR_RS_fc_r, file = "Data/HAR_RS_fc_r.Rdata")  
+save(HAR_RS_fc_e, file = "Data/HAR_RS_fc_e.Rdata")  
+
+
+# HAR-RS-RK 
+
+counter = 1 
+
+for(stockn in stocks$stockname){
+  print(counter)
+  
+  n_for = stocks[which(stocks$stockname == stockn),"n_for"] 
+  w_l = stocks[which(stocks$stockname == stockn),"w_l"]
+  
+  HAR_RSRK_fc_r[[stockn]] <- rep(NA, n_for)
+  for (i in 0:(n_for - 1)) {
+    temp <- HAR_DATA[[stockn]][(1 + i):(w_l + i - 22), ] %>% ts()
+    fc_data <- HAR_DATA[[stockn]][w_l + i + 1 - 22, -1]
+    model <- tslm(RV ~ RS + RK + RV_5 + RV_22, data = temp)
+    HAR_RSRK_fc_r[[stockn]][i + 1] <- predict(model, newdata=fc_data)
+  }
+  
+  HAR_RSRK_fc_r[[stockn]] <- xts(HAR_RSRK_fc_r[[stockn]],order.by = index(allstocks[[stockn]]$ret[(w_l+1):(w_l+n_for)]))
+  
+  HAR_RSRK_fc_e[[stockn]] <- rep(NA, n_for)
+  for (i in 0:(n_for - 1)) {
+    temp <- HAR_DATA[[stockn]][1:(w_l + i - 22), ] %>% ts()
+    fc_data <- HAR_DATA[[stockn]][w_l + i + 1 - 22, -1]
+    model <- tslm(RV ~ RS + RK + RV_5 + RV_22, data = temp)
+    HAR_RSRK_fc_e[[stockn]][i + 1] <- predict(model, newdata=fc_data)
+  }
+  
+  HAR_RSRK_fc_e[[stockn]]<-xts(HAR_RSRK_fc_e[[stockn]], order.by = index(allstocks[[stockn]]$ret[(w_l+1):(w_l+n_for)]))
+  
+  counter = counter + 1 
+}
+
+save(HAR_RS_fc_r, file = "Data/HAR_RSRK_fc_r.Rdata")  
+save(HAR_RS_fc_e, file = "Data/HAR_RSRK_fc_e.Rdata") 
+
+
+
+
+
+
+
+
+

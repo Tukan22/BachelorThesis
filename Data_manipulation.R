@@ -1,5 +1,5 @@
-install.packages("arrow")
-install.packages("xts")
+# install.packages("arrow")
+# install.packages("xts")
 library(arrow)
 library(xts)
 
@@ -77,7 +77,48 @@ for(stockn in stocks$stockname){
 stocks$start_date = as.Date(stocks$start_date) 
 stocks$end_date = as.Date(stocks$end_date) 
 
-stockn ="AAL" 
+minimum_length = 1000 # TODO check how many necessary 
+
+pre_covid_end_date = as.Date("2019-11-29")
+
+
+
+
+stocks$before_covid = stocks$start_date <= pre_covid_end_date 
+
+stocks_to_remove = c(which(stocks$before_covid == FALSE)) 
+
+allstocks = allstocks[-stocks_to_remove]
+stocks = stocks[-stocks_to_remove,]
+
+stocks$enough_pre_covid_obs = rep(NA, times = nrow(stocks))
+
+
+for(stockn in stocks$stockname){
+  stocks[which(stocks$stockname == stockn),]$enough_pre_covid_obs = (sum(index(allstocks[[stockn]])<pre_covid_end_date)>minimum_length) 
+}
+
+stocks_to_remove = c(which(stocks$enough_pre_covid_obs == FALSE)) 
+
+allstocks = allstocks[-stocks_to_remove]
+stocks = stocks[-stocks_to_remove,]
+
+stocks$max_date_diff = rep(NA, times = nrow(stocks))
+
+for(stockn in stocks$stockname){
+  stocks$max_date_diff[which(stocks$stockname == stockn)] = max(index(allstocks[[stockn]])[2:length(index(allstocks[[stockn]]))] - index(allstocks[[stockn]])[1:length(index(allstocks[[stockn]]))-1] ) 
+}
+
+stocks$no_breaks = rep(NA, times = nrow(stocks)) 
+stocks$no_breaks = stocks$max_date_diff < 21
+
+stocks_to_remove = c(which(stocks$no_breaks == FALSE)) 
+
+allstocks = allstocks[-stocks_to_remove]
+stocks = stocks[-stocks_to_remove,]
+
+
+
 
 HARmeasures = list() 
 
@@ -102,6 +143,14 @@ for(stockn in stocks$stockname){
   HARmeasures[[stockn]] = output 
 }
 
+
+
+
 rm(list=setdiff(ls(), varstokeep))
 
 save.image("Data/stocks.RData")
+
+
+
+
+

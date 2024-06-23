@@ -113,3 +113,7 @@ save(stocks, file = "Data/stocks.Rdata")
 save(varstokeep, file = "Data/varstokeep.Rdata")  
 save(RGARCH, file = "Data/RGARCH.Rdata")
 save(ARMAGARCH, file = "Data/ARMAGARCH.Rdata")
+
+
+
+save(pre_covid_end_date, file = "Data/pre_covid_end_date.Rdata")

@@ -407,7 +407,7 @@ print("Rolling DM-test")
 print(round(Diebold_r,3))
 xtable(round(Diebold_r,3))
 
-
+  
 
 # Mincer - Zarnowitz regression 
 

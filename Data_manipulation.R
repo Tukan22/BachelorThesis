@@ -160,3 +160,49 @@ save.image("Data/stocks.RData")
 save(stocks, file = "Data/stocks.Rdata")  
 save(allstocks, file = "Data/allstocks.Rdata")  
 save(HARmeasures, file = "Data/HARmeasures.Rdata")
+
+
+
+
+
+data_aux = list() 
+TT = list() 
+RV_5 = list() 
+RV_22 = list() 
+T_5 = list() 
+T_22 = list() 
+HAR_DATA = list() 
+
+
+# Preparation for other HAR models 
+
+counter = 1 
+for(stockn in stocks$stockname){
+  print(counter)
+  data_aux[[stockn]] <- allstocks[[stockn]][1:(stocks[which(stocks$stockname == stockn),"w_l"]+stocks[which(stocks$stockname == stockn),"n_for"]),]
+  TT[[stockn]] <- nrow(data_aux[[stockn]])
+  RV_5[[stockn]] <- unlist(lapply(lapply(1:(TT[[stockn]] - 4), function (x) {return(data_aux[[stockn]]$RV[x:(x + 4)])}), mean))
+  RV_22[[stockn]] <- unlist(lapply(lapply(1:(TT[[stockn]] - 21), function (x) {return(data_aux[[stockn]]$RV[x:(x + 21)])}), mean))
+  T_5[[stockn]] <- length(RV_5[[stockn]])
+  T_22[[stockn]] <- length(RV_22[[stockn]])
+  HAR_DATA[[stockn]] <- data.frame(data_aux[[stockn]]$RV[23:TT[[stockn]]],
+                                   data_aux[[stockn]]$RSp[22:(TT[[stockn]] - 1)],
+                                   data_aux[[stockn]]$RSm[22:(TT[[stockn]] - 1)],
+                                   RV_5[[stockn]][18:(T_5[[stockn]] - 1)],
+                                   RV_22[[stockn]][1:(T_22[[stockn]] - 1)],
+                                   data_aux[[stockn]]$RKu[22:(TT[[stockn]] - 1)],
+                                   data_aux[[stockn]]$RSk[22:(TT[[stockn]] - 1)])
+  colnames(HAR_DATA[[stockn]]) <- c("RV","RV_p","RV_n","RV_5","RV_22", "RK", "RS") 
+  
+  counter = counter + 1   
+}
+
+
+
+save(data_aux, file = "Data/data_aux.Rdata") 
+save(TT, file = "Data/TT.Rdata") 
+save(RV_5, file = "Data/RV_5.Rdata") 
+save(RV_22, file = "Data/RV_22.Rdata") 
+save(T_5, file = "Data/T_5.Rdata") 
+save(T_22, file = "Data/T_22.Rdata") 
+save(HAR_DATA, file = "Data/HAR_DATA.Rdata") 

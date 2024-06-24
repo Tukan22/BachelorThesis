@@ -188,12 +188,12 @@ for(stockn in stocks$stockname){
   
   # expanding
   print("   Expanding")
-#  RGARCH_fc_e[[stockn]] <- ugarchroll(RGARCH, 100*allstocks[[stockn]]$ret[1:(w_l+n_for+1),], n.ahead = 1, forecast.length = n_for, 
-#                                      n.start = NULL, refit.every = 1, refit.window = c("recursive"), 
-#                                      window.size = w_l, solver = "hybrid", calculate.VaR = FALSE, 
-#                                      keep.coef = TRUE,realizedVol = 100*((allstocks[[stockn]]$RV[1:(w_l+n_for+1),])))
-#  RGARCH_fc_e[[stockn]]<- xts(RGARCH_fc_e[[stockn]]@forecast[["density"]]$Sigma,
-#                              order.by = as.Date(rownames(RGARCH_fc_e[[stockn]]@forecast[["density"]])))/100
+  RGARCH_fc_e[[stockn]] <- ugarchroll(RGARCH, 100*allstocks[[stockn]]$ret[1:(w_l+n_for+1),], n.ahead = 1, forecast.length = n_for, 
+                                      n.start = NULL, refit.every = 1, refit.window = c("recursive"), 
+                                      window.size = w_l, solver = "hybrid", calculate.VaR = FALSE, 
+                                      keep.coef = TRUE,realizedVol = 100*((allstocks[[stockn]]$RV[1:(w_l+n_for+1),])))
+  RGARCH_fc_e[[stockn]]<- xts(RGARCH_fc_e[[stockn]]@forecast[["density"]]$Sigma,
+                              order.by = as.Date(rownames(RGARCH_fc_e[[stockn]]@forecast[["density"]])))/100
 
   counter = counter + 1 
 }

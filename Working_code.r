@@ -338,7 +338,6 @@ HAR_RSV_fc_r_er <- true_vals - HAR_RS_fc_r
 HAR_RSRK_fc_e_er <- true_vals - HAR_RSRK_fc_e
 HAR_RSRK_fc_r_er <- true_vals - HAR_RSRK_fc_r
 RGARCH_fc_e_er <- true_vals - RGARCH_fc_e
-RGARCH_fc_r_er <- true_vals - RGARCH_fc_r
 ARMAGARCH_fc_e_er <- true_vals - ARMAGARCH_fc_e
 ARMAGARCH_fc_r_er <- true_vals - ARMAGARCH_fc_r
 

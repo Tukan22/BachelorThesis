@@ -119,7 +119,6 @@ stocks = stocks[-stocks_to_remove,]
 
 
 
-
 HARmeasures = list() 
 
 # Compute measures for realized HAR models 
@@ -154,8 +153,6 @@ for(stockn in stocks$stockname){
 
 
 # rm(list=setdiff(ls(), varstokeep))
-
-save.image("Data/stocks.RData")
 
 save(stocks, file = "Data/stocks.Rdata")  
 save(allstocks, file = "Data/allstocks.Rdata")  
@@ -198,7 +195,6 @@ for(stockn in stocks$stockname){
 }
 
 
-
 save(data_aux, file = "Data/data_aux.Rdata") 
 save(TT, file = "Data/TT.Rdata") 
 save(RV_5, file = "Data/RV_5.Rdata") 
@@ -206,3 +202,44 @@ save(RV_22, file = "Data/RV_22.Rdata")
 save(T_5, file = "Data/T_5.Rdata") 
 save(T_22, file = "Data/T_22.Rdata") 
 save(HAR_DATA, file = "Data/HAR_DATA.Rdata") 
+
+
+
+
+# Remove data where models did not produce reasonable results 
+
+stocks$all_models_good = rep(TRUE, times = nrow(stocks))
+
+for(stockn in stocks$stockname){
+  if(
+    (length(nrow(AR1_RV_fc_r[[stockn]]) == n_for) != 1) ||
+    (length(nrow(AR1_RV_fc_e[[stockn]]) == n_for) != 1) ||
+    (length(nrow(HAR_fc_r[[stockn]]) == n_for) != 1) ||
+    (length(nrow(HAR_fc_e[[stockn]]) == n_for) != 1) ||
+    (length(nrow(HAR_AS_fc_r[[stockn]]) == n_for) != 1) ||
+    (length(nrow(HAR_AS_fc_e[[stockn]]) == n_for) != 1) ||
+    (length(nrow(HAR_RS_fc_r[[stockn]]) == n_for) != 1) ||
+    (length(nrow(HAR_RS_fc_e[[stockn]]) == n_for) != 1) ||
+    (length(nrow(HAR_RSRK_fc_r[[stockn]]) == n_for) != 1) ||
+    (length(nrow(HAR_RSRK_fc_e[[stockn]]) == n_for) != 1) ||
+    (length(nrow(RGARCH_fc_r[[stockn]]) == n_for) != 1) ||
+    (length(nrow(RGARCH_fc_e[[stockn]]) == n_for) != 1) ||
+    (length(nrow(ARMAGARCH_fc_r[[stockn]]) == n_for) != 1) ||
+    (length(nrow(ARMAGARCH_fc_e[[stockn]]) == n_for) != 1)
+    ) {
+    stocks[which(stocks$stockname == stockn),"all_models_good"] = FALSE 
+  }
+}
+
+stocks_to_remove = which(stocks$all_models_good == FALSE)
+
+allstocks = allstocks[-stocks_to_remove]
+stocks = stocks[-stocks_to_remove,]
+
+
+
+
+allstocks = allstocks[-which(stocks$stockname == "LIN")]
+stocks = stocks[-which(stocks$stockname == "LIN"),]
+
+nrow(stocks)

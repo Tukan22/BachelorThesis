@@ -164,10 +164,7 @@ ARMAGARCH_fc_e[["AAL"]]
 
 
 
-
-
-# TODO: Repeat with correct data subset 
-# Runs TODO 
+# Runs approximately 14 hours  
 start_time2 = Sys.time()
 counter = 1 
 
@@ -203,14 +200,6 @@ save(RGARCH_fc_e, file = "Data/RGARCH_fc_e.Rdata")
 
 end_time2 = Sys.time()
 print(end_time2-start_time2)
-
-
-
-stockn = "AAL"
-
-stocks[,c("stockname","w_l")]
-
-tail(data_aux)
 
 
 
@@ -331,12 +320,5 @@ for(stockn in stocks$stockname){
 
 save(HAR_RS_fc_r, file = "Data/HAR_RSRK_fc_r.Rdata")  
 save(HAR_RS_fc_e, file = "Data/HAR_RSRK_fc_e.Rdata") 
-
-
-
-
-
-
-
 
 

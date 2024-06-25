@@ -443,6 +443,4 @@ for (i in 1:length(regressions)) {
 
 mincer
 
-xtable(mincer, digits=8)
-
-
+xtable(mincer, digits=8) 

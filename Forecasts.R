@@ -1,47 +1,13 @@
 
 
 
-for(filename in setdiff(list.files("Data"), list.dirs("Data", recursive = FALSE, full.names = FALSE))){
-  load(paste("Data/", filename, sep = ""))
-}
-
-# stocks$w_l = rep(NA, times = nrow(stocks))
-# stocks$n_for = rep(NA, times = nrow(stocks)) 
-
+##########################
+######### AR1_RV #########
+##########################
 
 AR1_RV_fc_r = list()
 AR1_RV_fc_e = list() 
-HAR_fc_r = list()
-HAR_fc_e = list() 
-ARMAGARCH_fc_r = list()  
-ARMAGARCH_fc_e = list()  
-RGARCH_fc_r = list()  
-RGARCH_fc_e = list()  
 
-stockn = "XOM" 
-
-
-
-as.Date("2020-02-19")-as.Date(stocks[which(stocks$stockname == stockn),"start_date"])
-unique(as.Date(stocks[,"end_date"])-as.Date("2020-02-19")) 
-
-as.Date("2019-11-29")
-
-n_for = 66 
-pre_covid_end_date = as.Date("2019-11-29")
-
-head(stocks[,c("start_date","w_l","n_for")])
-
-
-
-stocks$w_l[which(stocks$stockname == stockn)] = which(index(allstocks[[stockn]]) == pre_covid_end_date) 
-
-index(allstocks[[stockn]])[1500:1600]
-
-
-
-
-# TODO: Repeat with correct data subset 
 # Runs approximately 3 minutes 
 start_time = Sys.time()
 counter = 1 
@@ -76,6 +42,14 @@ save(AR1_RV_fc_e, file = "Data/AR1_RV_fc_e.Rdata")
 end_time = Sys.time()
 print(end_time-start_time)
 
+
+
+#######################
+######### HAR #########
+#######################
+
+HAR_fc_r = list()
+HAR_fc_e = list() 
 
 # Runs approxiately 3 minutes  
 start_time = Sys.time()
@@ -114,6 +88,13 @@ end_time = Sys.time()
 print(end_time-start_time)
 
 
+
+##############################
+######### ARMA-GARCH #########
+##############################
+
+ARMAGARCH_fc_r = list()  
+ARMAGARCH_fc_e = list()  
 
 # Done with correct data 
 # Runs approximately 5 hours  
@@ -160,9 +141,13 @@ end_time = Sys.time()
 print(end_time-start_time)
 
 
-ARMAGARCH_fc_e[["AAL"]]
 
+###########################
+######### R-GARCH #########
+###########################
 
+RGARCH_fc_r = list()  
+RGARCH_fc_e = list()  
 
 # Runs approximately 14 hours  
 start_time2 = Sys.time()
@@ -203,14 +188,12 @@ print(end_time2-start_time2)
 
 
 
+##########################
+######### HAR-AS #########
+##########################
+
 HAR_AS_fc_r = list() 
 HAR_AS_fc_e = list() 
-HAR_RS_fc_r = list() 
-HAR_RS_fc_e = list() 
-HAR_RSRK_fc_r = list() 
-HAR_RSRK_fc_e  = list() 
-
-
 
 # HAR-AS 
 
@@ -249,6 +232,14 @@ save(HAR_AS_fc_r, file = "Data/HAR_AS_fc_r.Rdata")
 save(HAR_AS_fc_e, file = "Data/HAR_AS_fc_e.Rdata")  
 
 
+
+##########################
+######### HAR-RS #########
+##########################
+
+HAR_RS_fc_r = list() 
+HAR_RS_fc_e = list() 
+
 #HAR-RS 
 
 counter = 1 
@@ -285,6 +276,14 @@ save(HAR_RS_fc_r, file = "Data/HAR_RS_fc_r.Rdata")
 save(HAR_RS_fc_e, file = "Data/HAR_RS_fc_e.Rdata")  
 
 
+
+############################
+######### HAR-RSRK #########
+############################
+
+HAR_RSRK_fc_r = list() 
+HAR_RSRK_fc_e  = list() 
+
 # HAR-RS-RK 
 
 counter = 1 
@@ -318,7 +317,37 @@ for(stockn in stocks$stockname){
   counter = counter + 1 
 }
 
-save(HAR_RS_fc_r, file = "Data/HAR_RSRK_fc_r.Rdata")  
-save(HAR_RS_fc_e, file = "Data/HAR_RSRK_fc_e.Rdata") 
+save(HAR_RSRK_fc_r, file = "Data/HAR_RSRK_fc_r.Rdata")  
+save(HAR_RSRK_fc_e, file = "Data/HAR_RSRK_fc_e.Rdata") 
 
 
+
+# Check where all forecasts produced reasonable results
+# (in some cases, the model does not converge or does some other weird stuff) 
+stocks$all_models_good = rep(TRUE, times = nrow(stocks))
+for(stockn in stocks$stockname){
+  if(
+    (length(nrow(AR1_RV_fc_r[[stockn]]) == n_for) != 1) ||
+    (length(nrow(AR1_RV_fc_e[[stockn]]) == n_for) != 1) ||
+    (length(nrow(HAR_fc_r[[stockn]]) == n_for) != 1) ||
+    (length(nrow(HAR_fc_e[[stockn]]) == n_for) != 1) ||
+    (length(nrow(HAR_AS_fc_r[[stockn]]) == n_for) != 1) ||
+    (length(nrow(HAR_AS_fc_e[[stockn]]) == n_for) != 1) ||
+    (length(nrow(HAR_RS_fc_r[[stockn]]) == n_for) != 1) ||
+    (length(nrow(HAR_RS_fc_e[[stockn]]) == n_for) != 1) ||
+    (length(nrow(HAR_RSRK_fc_r[[stockn]]) == n_for) != 1) ||
+    (length(nrow(HAR_RSRK_fc_e[[stockn]]) == n_for) != 1) ||
+    (length(nrow(RGARCH_fc_r[[stockn]]) == n_for) != 1) ||
+    (length(nrow(RGARCH_fc_e[[stockn]]) == n_for) != 1) ||
+    (length(nrow(ARMAGARCH_fc_r[[stockn]]) == n_for) != 1) ||
+    (length(nrow(ARMAGARCH_fc_e[[stockn]]) == n_for) != 1)
+  ) {
+    stocks[which(stocks$stockname == stockn),"all_models_good"] = FALSE 
+  }
+}
+
+# Remove data where models did not produce reasonable results 
+stocks_to_remove = which(stocks$all_models_good == FALSE)
+if(length(stocks_to_remove)==0 ) {stocks_to_remove = -seq(from = 1, to = nrow(stocks))}
+allstocks = allstocks[-stocks_to_remove]
+stocks = stocks[-stocks_to_remove,]

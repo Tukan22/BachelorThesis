@@ -1,63 +1,40 @@
-# install.packages("arrow")
-# install.packages("xts")
-library(arrow)
-library(xts)
+### Run Jarque-Bera test for both returns and model residuals and save p-values 
 
+stocks$JBpval_AR1_RV_resid = rep(NA, times = nrow(stocks))
+stocks$JBpval_HAR_resid = rep(NA, times = nrow(stocks))
+stocks$JBpval_HARAS_resid = rep(NA, times = nrow(stocks))
+stocks$JBpval_HARS_resid = rep(NA, times = nrow(stocks))
+stocks$JBpval_HARSK_resid = rep(NA, times = nrow(stocks))
+stocks$JBpval_RGARCH_resid =rep(NA, times = nrow(stocks))
+stocks$JBpval_ARMAGARCH_resid =rep(NA, times = nrow(stocks))  
 
-#  varstokeep = c("allstocks", "HARmeasures","stocks", "varstokeep") 
+stocks$JBpval_rets = rep(NA, times = nrow(stocks))
 
-
-#read all filenames 
-stocks = as.data.frame(list.files("Data/parquet"))
-
-#create stock names from file names 
-names(stocks) = "filename"
-stocks$stockname = substr(stocks$filename, 4, nchar(stocks$filename))
-# head(stocks)
-
-allstocks = list() 
-
-for(i in seq(1,nrow(stocks))){
-  # read file 
-  allstocks[[stocks[i,"stockname"]]] =as.xts(read_parquet(paste("Data/parquet/", stocks[i,"filename"], sep=""))) 
-  # print(sum(is.na(allstocks[[stocks[i,"stockname"]]])))
-  # check if No Na's are present
-  stocks$NoNas[i] = sum(is.na(allstocks[[stocks[i,"stockname"]]])) == 0
-  # compute returns 
-  allstocks[[stocks[i,"stockname"]]]$ret = diff(allstocks[[stocks[i,"stockname"]]][,"close_price"])/lag(allstocks[[stocks[i,"stockname"]]][,"close_price"]) 
-  # reorganize  columns 
-  allstocks[[stocks[i,"stockname"]]] = allstocks[[stocks[i,"stockname"]]][,c(7,2,3,4,5,6,1)] 
-  allstocks[[stocks[i,"stockname"]]] = allstocks[[stocks[i,"stockname"]]][-1,]
+for(stockn in stocks$stockname){
+  stocks[which(stocks$stockname ==stockn),"JBpval_AR1_RV_resid"]= jarque.bera.test(residuals(AR1_RV_fit[[stockn]]))$p.val
+  stocks[which(stocks$stockname ==stockn),"JBpval_HAR_resid"]= jarque.bera.test(residuals(HAR_fit[[stockn]]))$p.val
+  stocks[which(stocks$stockname ==stockn),"JBpval_HARAS_resid"]= jarque.bera.test(residuals(HARAS_fit[[stockn]]))$p.val
+  stocks[which(stocks$stockname ==stockn),"JBpval_HARS_resid"]= jarque.bera.test(residuals(HARS_fit[[stockn]]))$p.val
+  stocks[which(stocks$stockname ==stockn),"JBpval_HARSK_resid"]= jarque.bera.test(residuals(HARSK_fit[[stockn]]))$p.val
+  stocks[which(stocks$stockname ==stockn),"JBpval_ARMAGARCH_resid"] = jarque.bera.test(residuals(ARMAGARCH_fit[[stockn]]))$p.val 
+  stocks[which(stocks$stockname ==stockn),"JBpval_RGARCH_resid"] = jarque.bera.test(residuals(RGARCH_fit[[stockn]]))$p.val 
+  
+  stocks[which(stocks$stockname ==stockn),"JBpval_rets"] = jarque.bera.test(allstocks[[stockn]]$ret)$p.val 
 }
 
-head(allstocks[["AAL"]])
-tail(allstocks[["AAL"]])
 
-# individual data reading - not relevant anymore 
-# AAL = read_parquet("Data/parquet/RM_AAL")
-# AAL = as.xts(AAL)
-# sum(is.na(AAL))
-# AAL$ret = diff(AAL[,"close_price"])/lag(AAL[,"close_price"]) 
-# 
-# AAL = AAL[,c(7,2,3,4,5,6,1)]
-# AAL = AAL[-1,]
-# 
-# head(AAL)
-# tail(AAL)
-# 
-# the same for AAPL 
-# AAPL = read_parquet("Data/parquet/RM_AAPL")
-# AAPL = as.xts(AAPL)
-# sum(is.na(AAPL))
-# AAPL$ret = diff(AAPL[,"close_price"])/lag(AAPL[,"close_price"]) 
-# 
-# AAPL = AAPL[,c(7,2,3,4,5,6,1)]
-# AAPL = AAPL[-1,]
-# 
-# head(AAPL)
-# tail(AAPL)
+### Run ADF test, Ljung-Box test on returns 
+
+stocks$ADFp_val = rep(NA, times = nrow(stocks))
+stocks$LBp_val = rep(NA, times = nrow(stocks))
+
+for(stockn in stocks$stockname){ 
+  stocks[[which(stocks$stockname==stockn),"ADFp_val"]]= adf.test(allstocks[[stockn]]$ret, k = 4)$p.value 
+  stocks[[which(stocks$stockname==stockn),"LBp_val"]] = Box.test(allstocks[[stockn]]$ret, type = 'Ljung-Box',lag = 5)$p.value 
+}
 
 
+### Save start date, end date and number of observations for each stock 
 
 stocks$start_date = rep(NA, times = nrow(stocks))
 stocks$end_date = rep(NA, times = nrow(stocks))
@@ -77,31 +54,30 @@ for(stockn in stocks$stockname){
 stocks$start_date = as.Date(stocks$start_date) 
 stocks$end_date = as.Date(stocks$end_date) 
 
-minimum_length = 1000 # TODO check how many necessary 
-
-pre_covid_end_date = as.Date("2019-11-29")
-
-
-
+# Eliminate stocks which are starting only before the start of covid date 
 
 stocks$before_covid = stocks$start_date <= pre_covid_end_date 
-
 stocks_to_remove = c(which(stocks$before_covid == FALSE)) 
-
+if(length(stocks_to_remove)==0 ) {stocks_to_remove = -seq(from = 1, to = nrow(stocks))}
 allstocks = allstocks[-stocks_to_remove]
 stocks = stocks[-stocks_to_remove,]
 
-stocks$enough_pre_covid_obs = rep(NA, times = nrow(stocks))
 
+# Eliminate stocks which do not have enough observations before covid 
+
+stocks$enough_pre_covid_obs = rep(NA, times = nrow(stocks))
 
 for(stockn in stocks$stockname){
   stocks[which(stocks$stockname == stockn),]$enough_pre_covid_obs = (sum(index(allstocks[[stockn]])<pre_covid_end_date)>minimum_length+n_for) 
 }
 
 stocks_to_remove = c(which(stocks$enough_pre_covid_obs == FALSE)) 
-
+if(length(stocks_to_remove)==0 ) {stocks_to_remove = -seq(from = 1, to = nrow(stocks))}
 allstocks = allstocks[-stocks_to_remove]
 stocks = stocks[-stocks_to_remove,]
+
+
+# Eliminate stocks which have a long break in the middle 
 
 stocks$max_date_diff = rep(NA, times = nrow(stocks))
 
@@ -110,57 +86,26 @@ for(stockn in stocks$stockname){
 }
 
 stocks$no_breaks = rep(NA, times = nrow(stocks)) 
-stocks$no_breaks = stocks$max_date_diff < 21
+stocks$no_breaks = stocks$max_date_diff < max_possible_date_diff
 
 stocks_to_remove = c(which(stocks$no_breaks == FALSE)) 
-
+if(length(stocks_to_remove)==0 ) {stocks_to_remove = -seq(from = 1, to = nrow(stocks))}
 allstocks = allstocks[-stocks_to_remove]
 stocks = stocks[-stocks_to_remove,]
 
 
+# Compute width of forecasting window - from the beginning to start of covid 
 
-HARmeasures = list() 
-
-# Compute measures for realized HAR models 
-
-for(stockn in stocks$stockname){
-  TT <- length(allstocks[[stockn]]$RV)
-  RV_0 <- as.numeric(allstocks[[stockn]]$RV[23:TT])
-  RV_1 <- as.numeric(allstocks[[stockn]]$RV[22:(TT - 1)])
-  RV_5 <- unlist(lapply(lapply(1:(TT - 4), function (t) {return(RV_0[t:(t + 4)])}), mean))
-  T_5 <- length(RV_5)
-  RV_5 <- RV_5[18:(T_5 - 1)]
-  RV_22 <- unlist(lapply(lapply(1:(TT - 21), function (t) {return(RV_0[t:(t + 21)])}), mean))
-  T_22 <- length(RV_22)
-  RV_22 <- RV_22[1:(T_22 - 1)]
-  RV_n <- as.numeric(allstocks[[stockn]]$RSm[22:(TT - 1)])
-  RV_p <- as.numeric(allstocks[[stockn]]$RSp[22:(TT - 1)])
-  RK <- as.numeric(allstocks[[stockn]]$RKu[22:(TT - 1)])     # TODO: What is this?!? 
-  RS <- as.numeric(allstocks[[stockn]]$RSk[22:(TT - 1)])     # TODO: What is this?!? 
-
-  output = data.frame(RV_0, RV_1, RV_5, RV_22, RV_n, RV_p, RK, RS)  
-  HARmeasures[[stockn]] = output 
-}
-
+stocks$w_l = rep(NA, times = nrow(stocks))
+stocks$n_for = rep(NA, times = nrow(stocks)) 
 
 for(stockn in stocks$stockname){
-  print(stockn)
-  #  stocks$w_l[which(stocks$stockname == stockn)] = round(stocks[which(stocks$stockname == stockn),"obs"]*1/2) 
   stocks$w_l[which(stocks$stockname == stockn)] = which(index(allstocks[[stockn]]) == pre_covid_end_date) 
-  #  stocks$n_for[which(stocks$stockname == stockn)] = round(stocks[which(stocks$stockname == stockn),"obs"]*1/6)
   stocks$n_for[which(stocks$stockname == stockn)] = 66 
 }
 
 
-# rm(list=setdiff(ls(), varstokeep))
-
-save(stocks, file = "Data/stocks.Rdata")  
-save(allstocks, file = "Data/allstocks.Rdata")  
-save(HARmeasures, file = "Data/HARmeasures.Rdata")
-
-
-
-
+# Calculate values to be used in HAR forecasts 
 
 data_aux = list() 
 TT = list() 
@@ -169,9 +114,6 @@ RV_22 = list()
 T_5 = list() 
 T_22 = list() 
 HAR_DATA = list() 
-
-
-# Preparation for other HAR models 
 
 counter = 1 
 for(stockn in stocks$stockname){
@@ -195,51 +137,12 @@ for(stockn in stocks$stockname){
 }
 
 
-save(data_aux, file = "Data/data_aux.Rdata") 
-save(TT, file = "Data/TT.Rdata") 
-save(RV_5, file = "Data/RV_5.Rdata") 
-save(RV_22, file = "Data/RV_22.Rdata") 
-save(T_5, file = "Data/T_5.Rdata") 
-save(T_22, file = "Data/T_22.Rdata") 
-save(HAR_DATA, file = "Data/HAR_DATA.Rdata") 
+# Remove LIN stockwhich  throws error in some procedures, do not know why. 
 
-
-
-
-# Remove data where models did not produce reasonable results 
-
-stocks$all_models_good = rep(TRUE, times = nrow(stocks))
-
-for(stockn in stocks$stockname){
-  if(
-    (length(nrow(AR1_RV_fc_r[[stockn]]) == n_for) != 1) ||
-    (length(nrow(AR1_RV_fc_e[[stockn]]) == n_for) != 1) ||
-    (length(nrow(HAR_fc_r[[stockn]]) == n_for) != 1) ||
-    (length(nrow(HAR_fc_e[[stockn]]) == n_for) != 1) ||
-    (length(nrow(HAR_AS_fc_r[[stockn]]) == n_for) != 1) ||
-    (length(nrow(HAR_AS_fc_e[[stockn]]) == n_for) != 1) ||
-    (length(nrow(HAR_RS_fc_r[[stockn]]) == n_for) != 1) ||
-    (length(nrow(HAR_RS_fc_e[[stockn]]) == n_for) != 1) ||
-    (length(nrow(HAR_RSRK_fc_r[[stockn]]) == n_for) != 1) ||
-    (length(nrow(HAR_RSRK_fc_e[[stockn]]) == n_for) != 1) ||
-    (length(nrow(RGARCH_fc_r[[stockn]]) == n_for) != 1) ||
-    (length(nrow(RGARCH_fc_e[[stockn]]) == n_for) != 1) ||
-    (length(nrow(ARMAGARCH_fc_r[[stockn]]) == n_for) != 1) ||
-    (length(nrow(ARMAGARCH_fc_e[[stockn]]) == n_for) != 1)
-    ) {
-    stocks[which(stocks$stockname == stockn),"all_models_good"] = FALSE 
-  }
-}
-
-stocks_to_remove = which(stocks$all_models_good == FALSE)
+stocks_to_remove = c(which(stocks$stockname == "LIN"))  
+if(length(stocks_to_remove)==0 ) {stocks_to_remove = -seq(from = 1, to = nrow(stocks))}
 
 allstocks = allstocks[-stocks_to_remove]
 stocks = stocks[-stocks_to_remove,]
-
-
-
-
-allstocks = allstocks[-which(stocks$stockname == "LIN")]
-stocks = stocks[-which(stocks$stockname == "LIN"),]
 
 nrow(stocks)

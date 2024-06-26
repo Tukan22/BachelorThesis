@@ -1,3 +1,4 @@
+
 library(arrow)
 library(xts)
 library(graphics)
@@ -16,6 +17,10 @@ library(xts)
 library(highfrequency)
 library(fitdistrplus)
 library(MASS)
+library(mosaic)
+library(segMGarch)
+library(GAS)
+
 
 
 ##############################

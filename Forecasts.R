@@ -5,7 +5,7 @@
 ######### AR1_RV #########
 ##########################
 
-AR1_RV_fc_r = list()
+AR1_RV_fc_r = list() 
 AR1_RV_fc_e = list() 
 
 # Runs approximately 3 minutes 
@@ -36,6 +36,15 @@ for(stockn in stocks$stockname){
   counter = counter + 1 
 }
 
+AR1_RV_fc_r = lapply(AR1_RV_fc_r, sqrt)   # TODO TBC if correct 
+AR1_RV_fc_e = lapply(AR1_RV_fc_e, sqrt)   # TODO TBC if correct 
+
+# AR1_RV_fc_r = lapply(AR1_RV_fc_r, function(x) {ifelse(is.na(x),0,x)})
+# AR1_RV_fc_e = lapply(AR1_RV_fc_e, function(x) {ifelse(is.na(x),0,x)})
+
+AR1_RV_fc_r = lapply(AR1_RV_fc_r, function(x) {ifelse(x<0,0,x)})
+AR1_RV_fc_e = lapply(AR1_RV_fc_e, function(x) {ifelse(x<0,0,x)})
+
 save(AR1_RV_fc_r, file = "Data/AR1_RV_fc_r.Rdata")  
 save(AR1_RV_fc_e, file = "Data/AR1_RV_fc_e.Rdata")
 
@@ -51,7 +60,7 @@ print(end_time-start_time)
 HAR_fc_r = list()
 HAR_fc_e = list() 
 
-# Runs approxiately 3 minutes  
+# Runs approximately 3 minutes  
 start_time = Sys.time()
 counter = 1 
 
@@ -81,6 +90,15 @@ for(stockn in stocks$stockname){
   counter = counter + 1 
 }
  
+HAR_fc_r = lapply(HAR_fc_r, function(x) {ifelse(x<0,0,x)})
+HAR_fc_e = lapply(HAR_fc_e, function(x) {ifelse(x<0,0,x)})
+
+# HAR_fc_r = lapply(HAR_fc_r, function(x) {ifelse(is.na(x),0,x)})
+# HAR_fc_e = lapply(HAR_fc_e, function(x) {ifelse(is.na(x),0,x)})
+
+HAR_fc_r = lapply(HAR_fc_r, sqrt)
+HAR_fc_e = lapply(HAR_fc_e, sqrt)
+
 save(HAR_fc_r, file = "Data/HAR_fc_r.Rdata")  
 save(HAR_fc_e, file = "Data/HAR_fc_e.Rdata")
 
@@ -97,7 +115,7 @@ ARMAGARCH_fc_r = list()
 ARMAGARCH_fc_e = list()  
 
 # Done with correct data 
-# Runs approximately 5 hours  
+# Runs approximately 5 hours
 
 start_time = Sys.time()
 counter = 1 
@@ -143,7 +161,7 @@ print(end_time-start_time)
 
 
 ###########################
-######### R-GARCH #########
+######### R-GARCH #########  # TODO:  Change with realized volatility instead of realized variance 
 ###########################
 
 RGARCH_fc_r = list()  
@@ -228,6 +246,15 @@ for(stockn in stocks$stockname){
   counter = counter + 1 
 }
 
+HAR_AS_fc_r = lapply(HAR_AS_fc_r, function(x) {ifelse(x<0,0,x)})
+HAR_AS_fc_e = lapply(HAR_AS_fc_e, function(x) {ifelse(x<0,0,x)})
+
+# HAR_AS_fc_r = lapply(HAR_AS_fc_r, function(x) {ifelse(is.na(x),0,x)})
+# HAR_AS_fc_e = lapply(HAR_AS_fc_e, function(x) {ifelse(is.na(x),0,x)})
+
+HAR_AS_fc_r = lapply(HAR_AS_fc_r, sqrt)
+HAR_AS_fc_e = lapply(HAR_AS_fc_e, sqrt)
+
 save(HAR_AS_fc_r, file = "Data/HAR_AS_fc_r.Rdata")  
 save(HAR_AS_fc_e, file = "Data/HAR_AS_fc_e.Rdata")  
 
@@ -271,6 +298,15 @@ for(stockn in stocks$stockname){
   HAR_RS_fc_e[[stockn]]<-xts(HAR_RS_fc_e[[stockn]],order.by = index(allstocks[[stockn]]$ret[(w_l+1):(w_l+n_for)]))
   counter = counter + 1 
 }
+
+HAR_RS_fc_r = lapply(HAR_RS_fc_r, function(x) {ifelse(x<0,0,x)})
+HAR_RS_fc_e = lapply(HAR_RS_fc_e, function(x) {ifelse(x<0,0,x)})
+
+# HAR_RS_fc_r = lapply(HAR_RS_fc_r, function(x) {ifelse(is.na(x),0,x)})
+# HAR_RS_fc_e = lapply(HAR_RS_fc_e, function(x) {ifelse(is.na(x),0,x)})
+
+HAR_RS_fc_r = lapply(HAR_RS_fc_r, sqrt)
+HAR_RS_fc_e = lapply(HAR_RS_fc_e, sqrt)
 
 save(HAR_RS_fc_r, file = "Data/HAR_RS_fc_r.Rdata")  
 save(HAR_RS_fc_e, file = "Data/HAR_RS_fc_e.Rdata")  
@@ -316,6 +352,15 @@ for(stockn in stocks$stockname){
   
   counter = counter + 1 
 }
+
+HAR_RSRK_fc_r = lapply(HAR_RSRK_fc_r, function(x) {ifelse(x<0,0,x)})
+HAR_RSRK_fc_e = lapply(HAR_RSRK_fc_r, function(x) {ifelse(x<0,0,x)})
+
+# HAR_RSRK_fc_r = lapply(HAR_RSRK_fc_r, function(x) {ifelse(is.na(x),0,x)})
+# HAR_RSRK_fc_e = lapply(HAR_RSRK_fc_e, function(x) {ifelse(is.na(x),0,x)})
+
+HAR_RSRK_fc_r = lapply(HAR_RSRK_fc_r, sqrt)
+HAR_RSRK_fc_e = lapply(HAR_RSRK_fc_e, sqrt)
 
 save(HAR_RSRK_fc_r, file = "Data/HAR_RSRK_fc_r.Rdata")  
 save(HAR_RSRK_fc_e, file = "Data/HAR_RSRK_fc_e.Rdata") 

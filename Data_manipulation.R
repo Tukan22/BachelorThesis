@@ -159,3 +159,4 @@ stocks$t_df_start = rep(NA, times = nrow(stocks))
 for(stockn in stocks$stockname) {
   stocks$t_df_start[which(stocks$stockname == stockn)] = t_df_numbers[which(stocks$stockname == stockn)] 
 }
+

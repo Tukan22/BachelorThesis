@@ -2,25 +2,27 @@
 
 stocks$JBpval_AR1_RV_resid = rep(NA, times = nrow(stocks))
 stocks$JBpval_HAR_resid = rep(NA, times = nrow(stocks))
-stocks$JBpval_HARAS_resid = rep(NA, times = nrow(stocks))
-stocks$JBpval_HARS_resid = rep(NA, times = nrow(stocks))
-stocks$JBpval_HARSK_resid = rep(NA, times = nrow(stocks))
+stocks$JBpval_HAR_AS_resid = rep(NA, times = nrow(stocks))
+stocks$JBpval_HAR_RS_resid = rep(NA, times = nrow(stocks))
+stocks$JBpval_HAR_RSRK_resid = rep(NA, times = nrow(stocks))
 stocks$JBpval_RGARCH_resid =rep(NA, times = nrow(stocks))
 stocks$JBpval_ARMAGARCH_resid =rep(NA, times = nrow(stocks))  
 
 stocks$JBpval_rets = rep(NA, times = nrow(stocks))
 
+
 for(stockn in stocks$stockname){
-  stocks[which(stocks$stockname ==stockn),"JBpval_AR1_RV_resid"]= jarque.bera.test(residuals(AR1_RV_fit[[stockn]]))$p.val
-  stocks[which(stocks$stockname ==stockn),"JBpval_HAR_resid"]= jarque.bera.test(residuals(HAR_fit[[stockn]]))$p.val
-  stocks[which(stocks$stockname ==stockn),"JBpval_HARAS_resid"]= jarque.bera.test(residuals(HARAS_fit[[stockn]]))$p.val
-  stocks[which(stocks$stockname ==stockn),"JBpval_HARS_resid"]= jarque.bera.test(residuals(HARS_fit[[stockn]]))$p.val
-  stocks[which(stocks$stockname ==stockn),"JBpval_HARSK_resid"]= jarque.bera.test(residuals(HARSK_fit[[stockn]]))$p.val
-  stocks[which(stocks$stockname ==stockn),"JBpval_ARMAGARCH_resid"] = jarque.bera.test(residuals(ARMAGARCH_fit[[stockn]]))$p.val 
-  stocks[which(stocks$stockname ==stockn),"JBpval_RGARCH_resid"] = jarque.bera.test(residuals(RGARCH_fit[[stockn]]))$p.val 
+  stocks[which(stocks$stockname ==stockn),"JBpval_AR1_RV_resid"]= jarque.bera.test(AR1_RV_fit[[stockn]]$residuals)$p.val
+  stocks[which(stocks$stockname ==stockn),"JBpval_HAR_resid"]= jarque.bera.test(HAR_fit[[stockn]]$residuals)$p.val
+  stocks[which(stocks$stockname ==stockn),"JBpval_HAR_AS_resid"]= jarque.bera.test(HARAS_fit[[stockn]]$residuals)$p.val
+  stocks[which(stocks$stockname ==stockn),"JBpval_HAR_RS_resid"]= jarque.bera.test(HARS_fit[[stockn]]$residuals)$p.val
+  stocks[which(stocks$stockname ==stockn),"JBpval_HAR_RSRK_resid"]= jarque.bera.test(HARSK_fit[[stockn]]$residuals)$p.val
+  stocks[which(stocks$stockname ==stockn),"JBpval_ARMAGARCH_resid"] = jarque.bera.test(ARMAGARCH_fit[[stockn]]@fit$residuals)$p.val 
+  stocks[which(stocks$stockname ==stockn),"JBpval_RGARCH_resid"] = jarque.bera.test(RGARCH_fit[[stockn]]@fit$residuals)$p.val 
   
   stocks[which(stocks$stockname ==stockn),"JBpval_rets"] = jarque.bera.test(allstocks[[stockn]]$ret)$p.val 
 }
+
 
 
 ### Run ADF test, Ljung-Box test on returns 
@@ -54,7 +56,7 @@ for(stockn in stocks$stockname){
 stocks$start_date = as.Date(stocks$start_date) 
 stocks$end_date = as.Date(stocks$end_date) 
 
-# Eliminate stocks which are starting only before the start of covid date 
+# Eliminate stocks which are starting only after the start of covid date 
 
 stocks$before_covid = stocks$start_date <= pre_covid_end_date 
 stocks_to_remove = c(which(stocks$before_covid == FALSE)) 
@@ -66,8 +68,10 @@ stocks = stocks[-stocks_to_remove,]
 # Eliminate stocks which do not have enough observations before covid 
 
 stocks$enough_pre_covid_obs = rep(NA, times = nrow(stocks))
+stocks$pre_covid_obs = rep(NA, times = nrow(stocks)) 
 
 for(stockn in stocks$stockname){
+  stocks[which(stocks$stockname == stockn),]$pre_covid_obs = (sum(index(allstocks[[stockn]])<pre_covid_end_date)) 
   stocks[which(stocks$stockname == stockn),]$enough_pre_covid_obs = (sum(index(allstocks[[stockn]])<pre_covid_end_date)>minimum_length+n_for) 
 }
 

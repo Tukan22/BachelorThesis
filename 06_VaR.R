@@ -112,7 +112,6 @@ unname(Backtests_RGARCH_r[[stockn]]$LRuc[2])
 unname(Backtests_ARMAGARCH_e[[stockn]]$LRuc[2])   
 unname(Backtests_ARMAGARCH_r[[stockn]]$LRuc[2])   
 
-
 sum(retstouse < VaR95_AR1_RV_e[[stockn]])/nrow(retstouse)
 sum(retstouse < VaR95_AR1_RV_r[[stockn]])/nrow(retstouse)
 sum(retstouse < VaR95_HAR_e[[stockn]])/nrow(retstouse)

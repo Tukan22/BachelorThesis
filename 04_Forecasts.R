@@ -182,7 +182,7 @@ for(stockn in stocks$stockname){
   # rolling
   RGARCH_fc_r[[stockn]] <- ugarchroll(RGARCH, 100*allstocks[[stockn]]$ret[1:(w_l+n_for+1),], n.ahead = 1, forecast.length = n_for, 
                                       n.start = NULL, refit.every = 1, refit.window = c("moving"), window.size = w_l,
-                                      solver = "hybrid", calculate.VaR = FALSE,keep.coef = TRUE,realizedVol = (100*allstocks[[stockn]]$RV[1:(w_l+n_for+1),]))
+                                      solver = "hybrid", calculate.VaR = FALSE,keep.coef = TRUE,realizedVol = (100*sqrt(allstocks[[stockn]]$RV[1:(w_l+n_for+1),])))
   RGARCH_fc_r[[stockn]] <- xts(RGARCH_fc_r[[stockn]]@forecast[["density"]]$Sigma,
                                order.by = as.Date(rownames(RGARCH_fc_r[[stockn]]@forecast[["density"]])))/100
   
@@ -191,15 +191,15 @@ for(stockn in stocks$stockname){
   RGARCH_fc_e[[stockn]] <- ugarchroll(RGARCH, 100*allstocks[[stockn]]$ret[1:(w_l+n_for+1),], n.ahead = 1, forecast.length = n_for, 
                                       n.start = NULL, refit.every = 1, refit.window = c("recursive"), 
                                       window.size = w_l, solver = "hybrid", calculate.VaR = FALSE, 
-                                      keep.coef = TRUE,realizedVol = 100*((allstocks[[stockn]]$RV[1:(w_l+n_for+1),])))
+                                      keep.coef = TRUE,realizedVol = 100*sqrt((allstocks[[stockn]]$RV[1:(w_l+n_for+1),])))
   RGARCH_fc_e[[stockn]]<- xts(RGARCH_fc_e[[stockn]]@forecast[["density"]]$Sigma,
                               order.by = as.Date(rownames(RGARCH_fc_e[[stockn]]@forecast[["density"]])))/100
 
   counter = counter + 1 
 }
 
-save(RGARCH_fc_r, file = "Data/RGARCH_fc_r.Rdata")  
-save(RGARCH_fc_e, file = "Data/RGARCH_fc_e.Rdata")
+# save(RGARCH_fc_r, file = "Data/RGARCH_fc_r.Rdata")   # TODO: Save   
+# save(RGARCH_fc_e, file = "Data/RGARCH_fc_e.Rdata")   # TODO: Save 
 
 end_time2 = Sys.time()
 print(end_time2-start_time2)

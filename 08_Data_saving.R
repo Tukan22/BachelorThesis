@@ -9,7 +9,7 @@ save(ARMAGARCH_fit, file = "Data/ARMAGARCH_fit.Rdata")
 save(HAR_fit, file = "Data/HAR_fit.Rdata") 
 save(HARAS_fit, file = "Data/HARAS_fit.Rdata") 
 save(HARS_fit, file = "Data/HARS_fit.Rdata") 
-save(HARS_fit, file = "Data/HARSK_fit.Rdata") 
+save(HARSK_fit, file = "Data/HARSK_fit.Rdata") 
 save(RGARCH_fit, file = "Data/RGARCH_fit.Rdata") 
 
 save(RGARCH, file = "Data/RGARCH.Rdata")

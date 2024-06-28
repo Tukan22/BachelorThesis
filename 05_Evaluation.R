@@ -33,7 +33,7 @@ for(stockn in stocks$stockname){
   n_for = stocks[which(stocks$stockname == stockn),"n_for"] 
   w_l = stocks[which(stocks$stockname == stockn),"w_l"]
   
-  true_vals[[stockn]] <- as.vector(allstocks[[stockn]]$RV[(w_l+2):(w_l+1+n_for),])
+  true_vals[[stockn]] <- as.vector(sqrt(allstocks[[stockn]]$RV[(w_l+2):(w_l+1+n_for),]))
   
   AR1_RV_fc_e_er[[stockn]]  <- true_vals[[stockn]] - AR1_RV_fc_e[[stockn]]
   AR1_RV_fc_r_er[[stockn]]  <- true_vals[[stockn]] - AR1_RV_fc_r[[stockn]]
@@ -70,7 +70,7 @@ for(stockn in stocks$stockname){
   MSE_e[[stockn]] <- sapply(errs[[stockn]][c(1,3,5,7,9,11,13)], function(x) mean(x^2, na.rm = TRUE))
   MSE_r[[stockn]] <- sapply(errs[[stockn]][c(2,4,6,8,10,12,14)], function(x) mean(x^2, na.rm = TRUE))
   
-  MSEs[[stockn]]  <- matrix(c(MSE_e[[stockn]], MSE_r[[stockn]], ifelse(MSE_r[[stockn]] > MSE_e[[stockn]], "Exanding", "Rolling")), ncol = 3, byrow = FALSE)
+  MSEs[[stockn]]  <- matrix(c(MSE_e[[stockn]], MSE_r[[stockn]], ifelse(MSE_r[[stockn]] > MSE_e[[stockn]], "Expanding", "Rolling")), ncol = 3, byrow = FALSE)
   colnames(MSEs[[stockn]]) <- c("Expanding window error", "Rolling window error", "Better forecast scheme")
   rownames(MSEs[[stockn]])  <- c("AR(1)-RV", "HAR","HAR_AS", "HAR-RSV", "HAR-RSRK", "Realized GARCH", "ARMA-GARCH")
   
@@ -79,7 +79,7 @@ for(stockn in stocks$stockname){
   MAE_r[[stockn]] <- sapply(errs[[stockn]][c(2,4,6,8,10,12,14)], function(x) mean(abs(x), na.rm = TRUE))
   
   MAEs[[stockn]]  <- matrix(c(MAE_e[[stockn]], MAE_r[[stockn]], ifelse(MAE_r[[stockn]] > MAE_e[[stockn]],"Expanding","Rolling")), ncol = 3, byrow = FALSE)
-  colnames(MAEs[[stockn]]) <- c("Expanding window error", "Rolling window error", "Expanding better")
+  colnames(MAEs[[stockn]]) <- c("Expanding window error", "Rolling window error", "Better forecast scheme")
   rownames(MAEs[[stockn]])  <- c("AR(1)-RV", "HAR","HAR_AS", "HAR-RSV", "HAR-RSRK", "Realized GARCH", "ARMA-GARCH")
 }
 
@@ -95,21 +95,26 @@ Roll <- c("AR1_RV_fc_r", "HAR_fc_r", "HAR_AS_fc_r", "HAR_RS_fc_r", "HAR_RSRK_fc_
 Exp_comb = list() 
 Roll_comb = list() 
 
-Exp_comb[[stockn]] <- t(combn(Exp, 2))
-Roll_comb[[stockn]] <- t(combn(Roll, 2))
 
 Diebold_e = list() 
 Diebold_r = list() 
 
-row.names(Exp_comb[[stockn]])<-apply(Exp_comb[[stockn]],1,function(x) paste(x[1],'|',x[2]))
-Diebold_e[[stockn]] <- data.frame(apply(Exp_comb[[stockn]],1,function(x) 
-  dm.test(true_vals[[stockn]] - get(x[1])[[stockn]], true_vals[[stockn]] - get(x[2])[[stockn]], alternative = c("two.sided"))$p.value))
-colnames(Diebold_e[[stockn]])<-"P-Value"
+for(stockn in stocks$stockname){
+  Exp_comb[[stockn]] <- t(combn(Exp, 2))
+  Roll_comb[[stockn]] <- t(combn(Roll, 2))
+  
+  row.names(Exp_comb[[stockn]])<-apply(Exp_comb[[stockn]],1,function(x) paste(x[1],'|',x[2]))
+  Diebold_e[[stockn]] <- data.frame(apply(Exp_comb[[stockn]],1,function(x) 
+    dm.test(true_vals[[stockn]] - get(x[1])[[stockn]], true_vals[[stockn]] - get(x[2])[[stockn]], alternative = c("two.sided"))$p.value))
+  colnames(Diebold_e[[stockn]])<-"P-Value"
+  
+  row.names(Roll_comb[[stockn]])<-apply(Roll_comb[[stockn]],1,function(x) paste(x[1],'|',x[2]))
+  Diebold_r[[stockn]] <- data.frame(apply(Roll_comb[[stockn]],1,function(x) 
+    dm.test(true_vals[[stockn]] - get(x[1])[[stockn]], true_vals[[stockn]] - get(x[2])[[stockn]], alternative = c("two.sided"))$p.value))
+  colnames(Diebold_r[[stockn]])<-"P-Value"
+}
 
-row.names(Roll_comb[[stockn]])<-apply(Roll_comb[[stockn]],1,function(x) paste(x[1],'|',x[2]))
-Diebold_r[[stockn]] <- data.frame(apply(Roll_comb[[stockn]],1,function(x) 
-  dm.test(true_vals[[stockn]] - get(x[1])[[stockn]], true_vals[[stockn]] - get(x[2])[[stockn]], alternative = c("two.sided"))$p.value))
-colnames(Diebold_r[[stockn]])<-"P-Value"
+
 
 # DM-tests
 # print("Expanding DM-test")
@@ -190,3 +195,10 @@ for(stockn in stocks$stockname){
   
   counter = counter + 1 
 }
+
+
+
+
+
+
+

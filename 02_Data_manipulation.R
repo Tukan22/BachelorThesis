@@ -23,6 +23,7 @@ for(stockn in stocks$stockname){
   stocks[which(stocks$stockname ==stockn),"JBpval_rets"] = jarque.bera.test(allstocks[[stockn]]$ret)$p.val 
 }
 
+stocks[which(stocks$stockname ==stockn),"JBpval_HAR_RS_resid"]= jarque.bera.test(HARS_fit[[stockn]]$residuals)$p.val
 
 
 ### Run ADF test, Ljung-Box test on returns 
@@ -149,15 +150,10 @@ if(length(stocks_to_remove)==0 ) {stocks_to_remove = -seq(from = 1, to = nrow(st
 allstocks = allstocks[-stocks_to_remove]
 stocks = stocks[-stocks_to_remove,]
 
-nrow(stocks)
-
-
-
 t_df_names = c("AAL","AAPL","ABBV","ACN","ADBE","AMAT","AMD","AMGN","AMZN","ANET","AVGO","BA","BAC","BKNG","C","CAT","CMCSA","CMG","COP","COST","CRM","CSCO","CVS","CVX","DIS","EMR","FCX","FTNT","GE","GME","GOOG","GS","HD","HES","IBM","INTC","JNJ","JPM","KO","LRCX","MA","MCD","MCHP","MELI","META","MRK","MSFT","MSTR","MU","NEE","NFLX","NKE","NOW","NVDA","NXPI","ORCL","PANW","PEP","PFE","PG","PYPL","QCOM","SBUX","SHOP","SMCI","SO","SPGI","SYK","TJX","TMO","TMUS","TSN","TXN","UNH","V","VRTX","WDAY","WFC","WMT","XOM")
 t_df_numbers = c(0.1,0.1,0.1,1.5,0.1,0.1,0.1,0.1,0.1,0.1,1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,1,0.1,1.5,0.1,0.1,0.1,3,0.1,0.1,0.1,0.1,0.1,5,0.1,0.1,0.1,1,0.1,1,1,0.1,0.1,0.1,1,1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,1,2.5,1.5,0.1,1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1)
 
 stocks$t_df_start = rep(NA, times = nrow(stocks))
-
 
 
 for(stockn in stocks$stockname) {

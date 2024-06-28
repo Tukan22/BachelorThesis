@@ -34,6 +34,21 @@ save(T_22, file = "Data/T_22.Rdata")
 save(HAR_DATA, file = "Data/HAR_DATA.Rdata") 
 save(true_vals, file = "Data/true_vals.Rdata") 
 
+save(AR1_RV_fc_r, file = "Data/AR1_RV_fc_r.Rdata")  
+save(AR1_RV_fc_e, file = "Data/AR1_RV_fc_e.Rdata")
+save(HAR_fc_r, file = "Data/HAR_fc_r.Rdata")  
+save(HAR_fc_e, file = "Data/HAR_fc_e.Rdata")
+save(ARMAGARCH_fc_r, file = "Data/ARMAGARCH_fc_r.Rdata")  
+save(ARMAGARCH_fc_e, file = "Data/ARMAGARCH_fc_e.Rdata")
+save(RGARCH_fc_r, file = "Data/RGARCH_fc_r.Rdata")   # TODO: Save   
+save(RGARCH_fc_e, file = "Data/RGARCH_fc_e.Rdata")   # TODO: Save 
+save(HAR_AS_fc_r, file = "Data/HAR_AS_fc_r.Rdata")  
+save(HAR_AS_fc_e, file = "Data/HAR_AS_fc_e.Rdata")  
+save(HAR_RS_fc_r, file = "Data/HAR_RS_fc_r.Rdata")  
+save(HAR_RS_fc_e, file = "Data/HAR_RS_fc_e.Rdata")  
+save(HAR_RSRK_fc_r, file = "Data/HAR_RSRK_fc_r.Rdata")  
+save(HAR_RSRK_fc_e, file = "Data/HAR_RSRK_fc_e.Rdata") 
+
 save(AR1_RV_fc_e_er, file = "Data/AR1_RV_fc_e_er.Rdata")
 save(AR1_RV_fc_r_er, file = "Data/AR1_RV_fc_r_er.Rdata")
 save(HAR_fc_e_er, file = "Data/HAR_fc_e_er.Rdata")
@@ -109,3 +124,5 @@ save(Backtests_RGARCH_e, file = "Data/Backtests_RGARCH_e.Rdata")
 save(Backtests_RGARCH_r, file = "Data/Backtests_RGARCH_r.Rdata")
 save(Backtests_ARMAGARCH_e, file = "Data/Backtests_ARMAGARCH_e.Rdata")
 save(Backtests_ARMAGARCH_r, file = "Data/Backtests_ARMAGARCH_r.Rdata")
+
+save(wald_test, file = "Data/wald_test.Rdata")

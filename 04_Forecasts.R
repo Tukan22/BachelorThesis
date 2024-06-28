@@ -198,8 +198,8 @@ for(stockn in stocks$stockname){
   counter = counter + 1 
 }
 
-# save(RGARCH_fc_r, file = "Data/RGARCH_fc_r.Rdata")   # TODO: Save   
-# save(RGARCH_fc_e, file = "Data/RGARCH_fc_e.Rdata")   # TODO: Save 
+save(RGARCH_fc_r, file = "Data/RGARCH_fc_r.Rdata") 
+save(RGARCH_fc_e, file = "Data/RGARCH_fc_e.Rdata") 
 
 end_time2 = Sys.time()
 print(end_time2-start_time2)

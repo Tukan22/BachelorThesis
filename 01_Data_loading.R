@@ -22,7 +22,6 @@ library(segMGarch)
 library(GAS)
 
 
-
 ##############################
 ### READING FROM PARQUET   ###
 ###    Not necessary if    ###

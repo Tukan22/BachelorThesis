@@ -115,6 +115,72 @@ for(stockn in stocks$stockname){
 }
 
 
+DM_output <- function(funcode){
+  Diebold_e_all = t(as.data.frame(lapply(X = Diebold_e, FUN = function(x){x})))
+  rownames(Diebold_e_all) = stocks$stockname
+  Diebold_r_all = t(as.data.frame(lapply(X = Diebold_r, FUN = function(x){x})))
+  rownames(Diebold_r_all) = stocks$stockname
+  
+  if(funcode == "mean") {
+    Diebold_e_all_means = round(as.data.frame(apply(X = Diebold_e_all, MARGIN = 2, FUN = mean)), digits = 2) 
+    Diebold_r_all_means = round(as.data.frame(apply(X = Diebold_r_all, MARGIN = 2, FUN = mean)), digits = 2)  
+  } else if (funcode == "sd"){
+    Diebold_e_all_means = round(as.data.frame(apply(X = Diebold_e_all, MARGIN = 2, FUN = sd)), digits = 2)  
+    Diebold_r_all_means = round(as.data.frame(apply(X = Diebold_r_all, MARGIN = 2, FUN = sd)), digits = 2)  
+  } else if (funcode == "threshold"){
+    Diebold_e_all_means = round(as.data.frame(apply(X = Diebold_e_all, MARGIN = 2, FUN = function(x){sum(x<0.05)}))/nrow(Diebold_e_all), digits = 2) 
+    Diebold_r_all_means = round(as.data.frame(apply(X = Diebold_r_all, MARGIN = 2, FUN = function(x){sum(x<0.05)}))/nrow(Diebold_r_all), digits = 2) 
+  } 
+  
+  
+  
+  Diebold_e_output = as.data.frame(
+    matrix(rep(NA, times = 49), 
+           ncol = 7)
+  )
+  rownames(Diebold_e_output) = c("AR(1)-RV", "HAR", "HAR-AS", "HAR-RSV", "HAR-RSRK", "RGARCH", "GARCH")
+  colnames(Diebold_e_output) = c("AR(1)-RV", "HAR", "HAR-AS", "HAR-RSV", "HAR-RSRK", "RGARCH", "GARCH")
+  
+  Diebold_e_output[1,] = c(rep(0,times = 1), Diebold_e_all_means[1:6,])
+  Diebold_e_output[2,] = c(rep(0,times = 2), Diebold_e_all_means[7:11,])
+  Diebold_e_output[3,] = c(rep(0,times = 3), Diebold_e_all_means[12:15,])
+  Diebold_e_output[4,] = c(rep(0,times = 4), Diebold_e_all_means[16:18,])
+  Diebold_e_output[5,] = c(rep(0,times = 5), Diebold_e_all_means[19:20,])
+  Diebold_e_output[6,] = c(rep(0,times = 6), Diebold_e_all_means[21,])
+  Diebold_e_output[7,] = rep(0,times = 7)
+  
+  Diebold_r_output = as.data.frame(
+    matrix(rep(NA, times = 49), 
+           ncol = 7)
+  )
+  rownames(Diebold_r_output) = c("AR(1)-RV", "HAR", "HAR-AS", "HAR-RSV", "HAR-RSRK", "RGARCH", "GARCH")
+  colnames(Diebold_r_output) = c("AR(1)-RV", "HAR", "HAR-AS", "HAR-RSV", "HAR-RSRK", "RGARCH", "GARCH")
+  
+  Diebold_r_output[1,] = c(rep(0, times = 1), Diebold_r_all_means[1:6,])
+  Diebold_r_output[2,] = c(rep(0,times = 2), Diebold_r_all_means[7:11,])
+  Diebold_r_output[3,] = c(rep(0,times = 3), Diebold_r_all_means[12:15,])
+  Diebold_r_output[4,] = c(rep(0,times = 4), Diebold_r_all_means[16:18,])
+  Diebold_r_output[5,] = c(rep(0,times = 5), Diebold_r_all_means[19:20,])
+  Diebold_r_output[6,] = c(rep(0,times = 6), Diebold_r_all_means[21,])
+  Diebold_r_output[7,] = rep(0,times = 7)
+  
+  Diebold_r_output = t(Diebold_r_output)
+  
+  Diebold_output = Diebold_e_output + Diebold_r_output 
+  
+  Diebold_output[1,1] = "-"
+  Diebold_output[2,2] = "-" 
+  Diebold_output[3,3] = "-" 
+  Diebold_output[4,4] = "-" 
+  Diebold_output[5,5] = "-" 
+  Diebold_output[6,6] = "-" 
+  Diebold_output[7,7] = "-"
+  
+  return(Diebold_output)
+}
+
+
+
 
 # DM-tests
 # print("Expanding DM-test")

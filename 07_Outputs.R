@@ -366,64 +366,149 @@ rownames(mincer_p_vals_summary) = rownames(mincer[[1]])
 
 
 
-# Až to budu vizualizovat, tak DM testy vizualizovat ve 2D tabulce, ne jako to je v tom projektu 
-# Třeba v horní části mít expanding a ve spodní rolling 
-#  Update: DM testy pravděpodobně nějak zprůměrovat ? 
 
-
-Diebold_e_all = t(as.data.frame(lapply(X = Diebold_e, FUN = function(x){x})))
-rownames(Diebold_e_all) = stocks$stockname
-Diebold_e_all_means = as.data.frame(apply(X = Diebold_e_all, MARGIN = 2, FUN = mean)) 
-
-Diebold_r_all = t(as.data.frame(lapply(X = Diebold_r, FUN = function(x){x})))
-rownames(Diebold_r_all) = stocks$stockname
-Diebold_r_all_means = as.data.frame(apply(X = Diebold_r_all, MARGIN = 2, FUN = mean)) 
-
-Diebold_e_output = as.data.frame(
-  matrix(rep(NA, times = 49), 
-         ncol = 7)
+print(
+  xtable(
+    DM_output("mean"), 
+    caption = c("This table shows the means of p-values of the Diebold-Mariano test for respective combinations of models.
+                The values below the diagonal are for rolling window forecast, the values above the diagonal are for the expanding window forecast.", 
+      "DM test means"), 
+    label = "Table:DM_test_mean", 
+    digits = 2 
+  ), 
+  file = "Outputs/DM_test_mean.tex" 
 )
-rownames(Diebold_e_output) = c("AR(1)-RV", "HAR", "HAR-AS", "HAR-RSV", "HAR-RSRK", "RGARCH", "GARCH")
-colnames(Diebold_e_output) = c("AR(1)-RV", "HAR", "HAR-AS", "HAR-RSV", "HAR-RSRK", "RGARCH", "GARCH")
 
-Diebold_e_output[1,] = c(rep("",times = 1), Diebold_e_all_means[1:6,])
-Diebold_e_output[2,] = c(rep("",times = 2), Diebold_e_all_means[7:11,])
-Diebold_e_output[3,] = c(rep("",times = 3), Diebold_e_all_means[12:15,])
-Diebold_e_output[4,] = c(rep("",times = 4), Diebold_e_all_means[16:18,])
-Diebold_e_output[5,] = c(rep("",times = 5), Diebold_e_all_means[19:20,])
-Diebold_e_output[6,] = c(rep("",times = 6), Diebold_e_all_means[21,])
-Diebold_e_output[7,] = rep("",times = 7)
-
-Diebold_r_output = as.data.frame(
-  matrix(rep(NA, times = 49), 
-         ncol = 7)
+print(
+  xtable(
+    DM_output("sd"), 
+    caption = c("This table shows the standard deviations of p-values of the Diebold-Mariano test for respective combinations of models. 
+                The values below the diagonal are for rolling window forecast, the values above the diagonal are for the expanding window forecast.", 
+                "DM test standard deviations"), 
+    label = "Table:DM_test_SD", 
+    digits = 2 
+  ), 
+  file = "Outputs/DM_test_SD.tex" 
 )
-rownames(Diebold_r_output) = c("AR(1)-RV", "HAR", "HAR-AS", "HAR-RSV", "HAR-RSRK", "RGARCH", "GARCH")
-colnames(Diebold_r_output) = c("AR(1)-RV", "HAR", "HAR-AS", "HAR-RSV", "HAR-RSRK", "RGARCH", "GARCH")
 
-Diebold_r_output[1,] = c(rep("", times = 1), Diebold_r_all_means[1:6,])
-Diebold_r_output[2,] = c(rep("",times = 2), Diebold_r_all_means[7:11,])
-Diebold_r_output[3,] = c(rep("",times = 3), Diebold_r_all_means[12:15,])
-Diebold_r_output[4,] = c(rep("",times = 4), Diebold_r_all_means[16:18,])
-Diebold_r_output[5,] = c(rep("",times = 5), Diebold_r_all_means[19:20,])
-Diebold_r_output[6,] = c(rep("",times = 6), Diebold_r_all_means[21,])
-Diebold_r_output[7,] = rep("",times = 7)
-
-Diebold_r_output = t(Diebold_r_output)
-
-# Diebold_output = Diebold_e_output + Diebold_r_output 
-
-# Diebold_output[1,1] = "-"
-# Diebold_output[2,2] = "-" 
-# Diebold_output[3,3] = "-" 
-# Diebold_output[4,4] = "-" 
-# Diebold_output[5,5] = "-" 
-# Diebold_output[6,6] = "-" 
-# Diebold_output[7,7] = "-" 
+print(
+  xtable(
+    DM_output("threshold"), 
+    caption = c("This table shows the the percentage for how many stocks the p-value of the Diebold-Mariano test was below 0.05 for respective combinations of models.
+                The values below the diagonal are for rolling window forecast, the values above the diagonal are for the expanding window forecast.", 
+                "DM test below 0.05"), 
+    label = "Table:DM_test_threshold", 
+    digits = 2 
+  ), 
+  file = "Outputs/DM_test_threshold.tex" 
+)
 
 
-# TODO print 
-# TODO the same for SDs (data prepared) - make a function out of it with the function as a parameter, do not repeat it whole. 
-# TODO: Both MZ and DM new when RGARCH data recalculated 
-# TODO: The mean probably does not make much sese - maybe rather show in what percentage of cases the p-val is <0.05 for the specific configuration. 
-# TODO !!! : The above/over diagonal scheme does not really make sense since the unidirectional relationship is inversed! keep it two tables 
+
+#
+
+
+
+
+
+VaRresults_output = data.frame(
+  matrix(
+    unlist(lapply(VaRresults, FUN = function(x){x[2]})), 
+    ncol = 14 
+  )
+) 
+
+# colnames(VaRresults_output) = c("AR(1)-RV expanding", "AR(1)-RV rolling", "HAR expanding", "HAR rolling", "HAR-AS expanding", 
+#                         "HAR-AS rolling", "HAR-RSV expanding", "HAR-RSV rolling", "HAR-RSRK expanding", "HAR-RSRK rolling", 
+#                         "RGARCH expanding", "RGARCH rolling", "GARCH expanding", "GARCH rolling")
+
+colnames(VaRresults_output) = c("AR(1)-RV", "AR(1)-RV", "HAR", "HAR", "HAR-AS", 
+                                                         "HAR-AS", "HAR-RSV", "HAR-RSV", "HAR-RSRK", "HAR-RSRK", 
+                                                         "RGARCH", "RGARCH", "GARCH", "GARCH")
+                                
+rownames(VaRresults_output) = stocks$stockname  
+
+
+
+
+# TODO: This needs to be run 3 times for each level of alpha 
+
+VaRresults = list() 
+Backtests = list() 
+
+for(VaRalpha in c(0.1, 0.05, 0.01)){
+  VaR(VaRalpha)
+  
+  
+  
+  print(
+    xtable(
+      VaRresults_output[seq(from = 1, to = nrow(VaRresults_output)/2),
+                        seq(from = 1, to = ncol(VaRresults_output), by = 2)], 
+      caption = c(
+        paste("This table shows the p-values of the Kuppiec test on ", (1-VaRalpha), " VaR computed using expanding forecast values of all 7 models for the first half of stocks.", sep = ""), 
+        paste("Kupiec test p-values, alpha =", (1-VaRalpha), " (1)", sep = "")), 
+      label = paste("Table:Kupiec_test_expanding_",(1-VaRalpha),"_1", sep = "")
+    ), 
+    file = paste("Outputs/Kupiec_p_vals_e_", (1-VaRalpha), "_1.tex", sep = "") 
+  )
+  
+  print(
+    xtable(
+      VaRresults_output[seq(from = nrow(VaRresults_output)/2, to = nrow(VaRresults_output)),
+                        seq(from = 1, to = ncol(VaRresults_output), by = 2)], 
+      caption = c(
+        paste("This table shows the p-values of the Kuppiec test on ", (1-VaRalpha), " VaR computed using expanding forecast values of all 7 models for the second half of stocks.", sep = ""), 
+        paste("Kupiec test p-values, alpha =", (1-VaRalpha), " (2)", sep = "")), 
+      label = paste("Table:Kupiec_test_expanding_",(1-VaRalpha),"_2", sep = "")
+    ), 
+    file = paste("Outputs/Kupiec_p_vals_e_", (1-VaRalpha), "_2.tex", sep = "") 
+  )
+  
+  
+  
+  print(
+    xtable(
+      VaRresults_output[seq(from = 1, to = nrow(VaRresults_output)/2),
+                        seq(from = 1, to = ncol(VaRresults_output), by = 2)], 
+      caption = c(
+        paste("This table shows the p-values of the Kuppiec test on ", (1-VaRalpha), " VaR computed using rolling forecast values of all 7 models for the first half of stocks.", sep = ""), 
+        paste("Kupiec test p-values, alpha =", (1-VaRalpha), " (1)", sep = "")), 
+      label = paste("Table:Kupiec_test_rolling_",(1-VaRalpha),"_1", sep = "")
+    ), 
+    file = paste("Outputs/Kupiec_p_vals_r_", (1-VaRalpha), "_1.tex", sep = "") 
+  )
+  
+  print(
+    xtable(
+      VaRresults_output[seq(from = nrow(VaRresults_output)/2, to = nrow(VaRresults_output)),
+                        seq(from = 1, to = ncol(VaRresults_output), by = 2)], 
+      caption = c(
+        paste("This table shows the p-values of the Kuppiec test on ", (1-VaRalpha), " VaR computed using rolling forecast values of all 7 models for the second half of stocks.", sep = ""), 
+        paste("Kupiec test p-values, alpha =", (1-VaRalpha), " (2)", sep = "")), 
+      label = paste("Table:Kupiec_test_rolling_",(1-VaRalpha),"_2", sep = "")
+    ), 
+    file = paste("Outputs/Kupiec_p_vals_r_", (1-VaRalpha), "_2.tex", sep = "") 
+  )
+  
+  print(
+    xtable(
+      Kupiec_summary, 
+      caption = c(
+        paste("This table shows the summary statistics of the p-values of the Kuppiec test on ", (1-VaRalpha), " VaR. 
+            The first column shows the mean of p-values, the second column the standard deviation 
+            and the third column shows in how many cases the p-value was lower than 0.05, i. e. in how many cases the VaR computation was unsuccesful.",
+              sep = ""), 
+        paste("Kupiec test p-values summary, alpha =", (1-VaRalpha), sep = "")), 
+      label = paste("Table:Kupiec_test_summary_",(1-VaRalpha), sep = ""), 
+      digits = 0 
+    ), 
+    file = paste("Outputs/Kupiec_p_vals_summary_", (1-VaRalpha), ".tex", sep = "") 
+  )
+  
+}
+
+
+
+
+

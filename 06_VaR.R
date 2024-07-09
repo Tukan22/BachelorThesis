@@ -1,10 +1,9 @@
 
-for(stockn in stocks$stockname){
-  print(stockn)
-  dist = fitdist(data = as.numeric(AR1_RV_fc_e[[stockn]])*1000, distr = "norm")["estimate"] # TODO here I am assuming normal distribution - jarque bera test! 
-  estimates = dist$estimate/1000 
-  AR1_RV_fc_e[[stockn]]
-}
+# for(stockn in stocks$stockname){
+#  dist = fitdist(data = as.numeric(AR1_RV_fc_e[[stockn]])*1000, distr = "norm")["estimate"] # TODO here I am assuming normal distribution - jarque bera test! 
+#  estimates = dist$estimate/1000 
+#  AR1_RV_fc_e[[stockn]]
+#}
 
 VaR95_AR1_RV_e = list() 
 VaR95_AR1_RV_r = list() 
@@ -36,222 +35,131 @@ Backtests_RGARCH_r = list()
 Backtests_ARMAGARCH_e = list() 
 Backtests_ARMAGARCH_r = list() 
 
-stockn = "AAL"
-errorstocks = c("hi")
 
-Backtests = list() 
 
-# Runs approximately 30 seconds 
-start_time = Sys.time()
 
-counter = 1 
-for(stockn in stocks$stockname){   
-  print(paste(counter, " - ", stockn ,sep="")) 
+VaR <- function(VaRalpha)
+{
   
-  retstouse = allstocks[[stockn]]$ret[
-    min(which(index(allstocks[[stockn]])>=as.Date(forecast_start_date))+1):
-      min(which(index(allstocks[[stockn]])>=(as.Date(forecast_start_date)))+n_for)] 
+  # Runs approximately 90 seconds 
+  start_time = Sys.time()
   
-  x=as.xts(allstocks[[stockn]]$ret)     
+  counter = 1 
+  
+  # VaRalpha = 0.01
+  
+  for(stockn in stocks$stockname){   
+    VaRresults[[stockn]] = as.data.frame(matrix(rep(NA,  14), ncol = 1))
+    
+    #  for(VaRalpha in c (0.1, 0.05, 0.01)){
+    
+    print(paste(counter, " - ", stockn ,sep="")) 
+    
+    retstouse = allstocks[[stockn]]$ret[
+      min(which(index(allstocks[[stockn]])>=as.Date(forecast_start_date))+1):
+        min(which(index(allstocks[[stockn]])>=(as.Date(forecast_start_date)))+n_for)] 
+    
+    x=as.xts(allstocks[[stockn]]$ret)     
+    
+    # Fit the returns to t-distribution, i. e. find the right number of degrees of freedom.  
     fit.t = fitdistr(
       x = x*1000, 
       densfun = "t", 
       start = list(m=mean(x),s=sd(x), df=stocks$t_df_start[which(stocks$stockname == stockn)]), 
       lower=c(-1, 0.001,0.01))$estimate/c(1000,1000,1) 
     fit.df = fit.t[3] 
-
-    # Check how the VaR should be calculated      
-    VaR95_AR1_RV_e[[stockn]] = as.xts(mean(allstocks[[stockn]]$ret) + (AR1_RV_fc_e[[stockn]])*qt(p = 0.05, df = fit.df))  
-    VaR95_AR1_RV_r[[stockn]] =as.xts(mean(allstocks[[stockn]]$ret) + (AR1_RV_fc_r[[stockn]])*qt(p = 0.05, df = fit.df))  
-    VaR95_HAR_e[[stockn]] = as.xts(mean(allstocks[[stockn]]$ret) + (HAR_fc_e[[stockn]])*qt(p = 0.05, df = fit.df))  
-    VaR95_HAR_r[[stockn]] = as.xts(mean(allstocks[[stockn]]$ret) + (HAR_fc_r[[stockn]])*qt(p = 0.05, df = fit.df))  
-    VaR95_HAR_AS_e[[stockn]] = as.xts(mean(allstocks[[stockn]]$ret) + (HAR_AS_fc_e[[stockn]])*qt(p = 0.05, df = fit.df))  
-    VaR95_HAR_AS_r[[stockn]] = as.xts(mean(allstocks[[stockn]]$ret) + (HAR_AS_fc_r[[stockn]])*qt(p = 0.05, df = fit.df))  
-    VaR95_HAR_RS_e[[stockn]] = as.xts(mean(allstocks[[stockn]]$ret) + (HAR_RS_fc_e[[stockn]])*qt(p = 0.05, df = fit.df))  
-    VaR95_HAR_RS_r[[stockn]] = as.xts(mean(allstocks[[stockn]]$ret) + (HAR_RS_fc_r[[stockn]])*qt(p = 0.05, df = fit.df))  
-    VaR95_HAR_RSRK_e[[stockn]] = as.xts(mean(allstocks[[stockn]]$ret) + (HAR_RSRK_fc_e[[stockn]])*qt(p = 0.05, df = fit.df))  
-    VaR95_HAR_RSRK_r[[stockn]] = as.xts(mean(allstocks[[stockn]]$ret) + (HAR_RSRK_fc_r[[stockn]])*qt(p = 0.05, df = fit.df))  
-    VaR95_RGARCH_e[[stockn]] = as.xts(mean(allstocks[[stockn]]$ret) + (RGARCH_fc_e[[stockn]])*qt(p = 0.05, df = fit.df))  
-    VaR95_RGARCH_r[[stockn]] = as.xts(mean(allstocks[[stockn]]$ret) + (RGARCH_fc_r[[stockn]])*qt(p = 0.05, df = fit.df))  
-    VaR95_ARMAGARCH_e[[stockn]] = as.xts(mean(allstocks[[stockn]]$ret) + (ARMAGARCH_fc_e[[stockn]])*qt(p = 0.05, df = fit.df))  
-    VaR95_ARMAGARCH_r[[stockn]] = as.xts(mean(allstocks[[stockn]]$ret) + (ARMAGARCH_fc_r[[stockn]])*qt(p = 0.05, df = fit.df))   
-
-  Backtests_AR1_RV_e[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_AR1_RV_e[[stockn]], alpha = 0.05)
-  Backtests_AR1_RV_r[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_AR1_RV_r[[stockn]], alpha = 0.05)
-  Backtests_HAR_e[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_HAR_e[[stockn]], alpha = 0.05)
-  Backtests_HAR_r[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_HAR_r[[stockn]], alpha = 0.05)
-  Backtests_HAR_AS_e[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_HAR_AS_e[[stockn]], alpha = 0.05)
-  Backtests_HAR_AS_r[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_HAR_AS_r[[stockn]], alpha = 0.05)
-  Backtests_HAR_RS_e[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_HAR_RS_e[[stockn]], alpha = 0.05)
-  Backtests_HAR_RS_r[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_HAR_RS_r[[stockn]], alpha = 0.05)
-  Backtests_HAR_RSRK_e[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_HAR_RSRK_e[[stockn]], alpha = 0.05)
-  Backtests_HAR_RSRK_r[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_HAR_RSRK_r[[stockn]], alpha = 0.05)
-  Backtests_RGARCH_e[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_RGARCH_e[[stockn]], alpha = 0.05)
-  Backtests_RGARCH_r[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_RGARCH_r[[stockn]], alpha = 0.05)
-  Backtests_ARMAGARCH_e[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_ARMAGARCH_e[[stockn]], alpha = 0.05)
-  Backtests_ARMAGARCH_r[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_ARMAGARCH_r[[stockn]], alpha = 0.05)
+    
+    tquantile = qt(p = VaRalpha, df = fit.df)
+    
+    # Compute VaR for each model 
+    VaR95_AR1_RV_e[[stockn]] =    as.xts(mean(allstocks[[stockn]]$ret) + tquantile*(AR1_RV_fc_e[[stockn]]))  
+    VaR95_AR1_RV_r[[stockn]] =    as.xts(mean(allstocks[[stockn]]$ret) + tquantile*(AR1_RV_fc_r[[stockn]]))  
+    VaR95_HAR_e[[stockn]] =       as.xts(mean(allstocks[[stockn]]$ret) + tquantile*(HAR_fc_e[[stockn]]))  
+    VaR95_HAR_r[[stockn]] =       as.xts(mean(allstocks[[stockn]]$ret) + tquantile*(HAR_fc_r[[stockn]]))  
+    VaR95_HAR_AS_e[[stockn]] =    as.xts(mean(allstocks[[stockn]]$ret) + tquantile*(HAR_AS_fc_e[[stockn]]))  
+    VaR95_HAR_AS_r[[stockn]] =    as.xts(mean(allstocks[[stockn]]$ret) + tquantile*(HAR_AS_fc_r[[stockn]]))  
+    VaR95_HAR_RS_e[[stockn]] =    as.xts(mean(allstocks[[stockn]]$ret) + tquantile*(HAR_RS_fc_e[[stockn]]))  
+    VaR95_HAR_RS_r[[stockn]] =    as.xts(mean(allstocks[[stockn]]$ret) + tquantile*(HAR_RS_fc_r[[stockn]]))  
+    VaR95_HAR_RSRK_e[[stockn]] =  as.xts(mean(allstocks[[stockn]]$ret) + tquantile*(HAR_RSRK_fc_e[[stockn]]))  
+    VaR95_HAR_RSRK_r[[stockn]] =  as.xts(mean(allstocks[[stockn]]$ret) + tquantile*(HAR_RSRK_fc_r[[stockn]]))  
+    VaR95_RGARCH_e[[stockn]] =    as.xts(mean(allstocks[[stockn]]$ret) + tquantile*(RGARCH_fc_e[[stockn]]))  
+    VaR95_RGARCH_r[[stockn]] =    as.xts(mean(allstocks[[stockn]]$ret) + tquantile*(RGARCH_fc_r[[stockn]]))  
+    VaR95_ARMAGARCH_e[[stockn]] = as.xts(mean(allstocks[[stockn]]$ret) + tquantile*(ARMAGARCH_fc_e[[stockn]]))  
+    VaR95_ARMAGARCH_r[[stockn]] = as.xts(mean(allstocks[[stockn]]$ret) + tquantile*(ARMAGARCH_fc_r[[stockn]]))   
+    
+    # Backtest each model 
+    Backtests_AR1_RV_e[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_AR1_RV_e[[stockn]], alpha = VaRalpha)
+    Backtests_AR1_RV_r[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_AR1_RV_r[[stockn]], alpha = VaRalpha)
+    Backtests_HAR_e[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_HAR_e[[stockn]], alpha = VaRalpha)
+    Backtests_HAR_r[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_HAR_r[[stockn]], alpha = VaRalpha)
+    Backtests_HAR_AS_e[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_HAR_AS_e[[stockn]], alpha = VaRalpha)
+    Backtests_HAR_AS_r[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_HAR_AS_r[[stockn]], alpha = VaRalpha)
+    Backtests_HAR_RS_e[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_HAR_RS_e[[stockn]], alpha = VaRalpha)
+    Backtests_HAR_RS_r[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_HAR_RS_r[[stockn]], alpha = VaRalpha)
+    Backtests_HAR_RSRK_e[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_HAR_RSRK_e[[stockn]], alpha = VaRalpha)
+    Backtests_HAR_RSRK_r[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_HAR_RSRK_r[[stockn]], alpha = VaRalpha)
+    Backtests_RGARCH_e[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_RGARCH_e[[stockn]], alpha = VaRalpha)
+    Backtests_RGARCH_r[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_RGARCH_r[[stockn]], alpha = VaRalpha)
+    Backtests_ARMAGARCH_e[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_ARMAGARCH_e[[stockn]], alpha = VaRalpha)
+    Backtests_ARMAGARCH_r[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_ARMAGARCH_r[[stockn]], alpha = VaRalpha)
+    
+    
+    #  }
+    
+    # Kupiec test p-values
+    
+    Kupieccolname = paste((1-VaRalpha)*100,"% Kupiec p-val", sep = "") 
+    
+    VaRresults[[stockn]][Kupieccolname] =  c(
+      unname(Backtests_AR1_RV_e[[stockn]]$LRuc[2]), 
+      unname(Backtests_AR1_RV_r[[stockn]]$LRuc[2]), 
+      unname(Backtests_HAR_e[[stockn]]$LRuc[2]),  
+      unname(Backtests_HAR_r[[stockn]]$LRuc[2]),  
+      unname(Backtests_HAR_AS_e[[stockn]]$LRuc[2]),  
+      unname(Backtests_HAR_AS_r[[stockn]]$LRuc[2]),   
+      unname(Backtests_HAR_RS_e[[stockn]]$LRuc[2]),   
+      unname(Backtests_HAR_RS_r[[stockn]]$LRuc[2]),   
+      unname(Backtests_HAR_RSRK_e[[stockn]]$LRuc[2]),   
+      unname(Backtests_HAR_RSRK_r[[stockn]]$LRuc[2]),   
+      unname(Backtests_RGARCH_e[[stockn]]$LRuc[2]),   
+      unname(Backtests_RGARCH_r[[stockn]]$LRuc[2]),   
+      unname(Backtests_ARMAGARCH_e[[stockn]]$LRuc[2]),   
+      unname(Backtests_ARMAGARCH_r[[stockn]]$LRuc[2])   
+    )
+    
+    
+    Perccolname = paste((1-VaRalpha)*100,"% percentage below VaR", sep = "") 
+    
+    # Percentage returns outside of the alpha-% VaR 
+    VaRresults[[stockn]][Perccolname] = c(
+      sum(retstouse < VaR95_AR1_RV_e[[stockn]])/nrow(retstouse),
+      sum(retstouse < VaR95_AR1_RV_r[[stockn]])/nrow(retstouse),
+      sum(retstouse < VaR95_HAR_e[[stockn]])/nrow(retstouse),
+      sum(retstouse < VaR95_HAR_r[[stockn]])/nrow(retstouse),
+      sum(retstouse < VaR95_HAR_AS_e[[stockn]])/nrow(retstouse),
+      sum(retstouse < VaR95_HAR_AS_r[[stockn]])/nrow(retstouse),
+      sum(retstouse < VaR95_HAR_RS_e[[stockn]])/nrow(retstouse),
+      sum(retstouse < VaR95_HAR_RS_r[[stockn]])/nrow(retstouse),
+      sum(retstouse < VaR95_HAR_RSRK_e[[stockn]])/nrow(retstouse),
+      sum(retstouse < VaR95_HAR_RSRK_r[[stockn]])/nrow(retstouse),
+      sum(retstouse < VaR95_RGARCH_e[[stockn]])/nrow(retstouse),
+      sum(retstouse < VaR95_RGARCH_r[[stockn]])/nrow(retstouse),
+      sum(retstouse < VaR95_ARMAGARCH_e[[stockn]])/nrow(retstouse),
+      sum(retstouse < VaR95_ARMAGARCH_r[[stockn]])/nrow(retstouse) 
+    )   
+    counter = counter + 1 
+  }
   
-  counter = counter + 1 
+  VaRmeans = apply(VaRresults_output, MARGIN = 2, FUN = mean)
+  VaRsds = apply(VaRresults_output, MARGIN = 2, FUN = sd)
+  VaRouts = apply(VaRresults_output, MARGIN = 2, FUN = function(x){sum(x<0.05)})
+  
+  Kupiec_summary = cbind(VaRmeans, VaRsds, VaRouts) 
+  rownames(Kupiec_summary) = paste(rownames(Kupiec_summary), rep(c("expanding","rolling"),times = 7)) 
+  colnames(Kupiec_summary) = c("Mean","SD","p-val < 0.05")
+  
+  end_time = Sys.time()
+  print(end_time-start_time)
+  
 }
 
-end_time = Sys.time()
-print(end_time-start_time)
-
-unname(Backtests_AR1_RV_e[[stockn]]$LRuc[2]) 
-unname(Backtests_AR1_RV_r[[stockn]]$LRuc[2]) 
-unname(Backtests_HAR_e[[stockn]]$LRuc[2])  
-unname(Backtests_HAR_r[[stockn]]$LRuc[2])  
-unname(Backtests_HAR_AS_e[[stockn]]$LRuc[2])  
-unname(Backtests_HAR_AS_r[[stockn]]$LRuc[2])   
-unname(Backtests_HAR_RS_e[[stockn]]$LRuc[2])   
-unname(Backtests_HAR_RS_r[[stockn]]$LRuc[2])   
-unname(Backtests_HAR_RSRK_e[[stockn]]$LRuc[2])   
-unname(Backtests_HAR_RSRK_r[[stockn]]$LRuc[2])   
-unname(Backtests_RGARCH_e[[stockn]]$LRuc[2])   
-unname(Backtests_RGARCH_r[[stockn]]$LRuc[2])   
-unname(Backtests_ARMAGARCH_e[[stockn]]$LRuc[2])   
-unname(Backtests_ARMAGARCH_r[[stockn]]$LRuc[2])   
-
-sum(retstouse < VaR95_AR1_RV_e[[stockn]])/nrow(retstouse)
-sum(retstouse < VaR95_AR1_RV_r[[stockn]])/nrow(retstouse)
-sum(retstouse < VaR95_HAR_e[[stockn]])/nrow(retstouse)
-sum(retstouse < VaR95_HAR_r[[stockn]])/nrow(retstouse)
-sum(retstouse < VaR95_HAR_AS_e[[stockn]])/nrow(retstouse)
-sum(retstouse < VaR95_HAR_AS_r[[stockn]])/nrow(retstouse)
-sum(retstouse < VaR95_HAR_RS_e[[stockn]])/nrow(retstouse)
-sum(retstouse < VaR95_HAR_RS_r[[stockn]])/nrow(retstouse)
-sum(retstouse < VaR95_HAR_RSRK_e[[stockn]])/nrow(retstouse)
-sum(retstouse < VaR95_HAR_RSRK_r[[stockn]])/nrow(retstouse)
-sum(retstouse < VaR95_RGARCH_e[[stockn]])/nrow(retstouse)
-sum(retstouse < VaR95_RGARCH_r[[stockn]])/nrow(retstouse)
-sum(retstouse < VaR95_ARMAGARCH_e[[stockn]])/nrow(retstouse)
-sum(retstouse < VaR95_ARMAGARCH_r[[stockn]])/nrow(retstouse)
-
-
-
-save(VaR95_AR1_RV_e, file = "Data/VaR95_AR1_RV_e.Rdata")
-save(VaR95_AR1_RV_r, file = "Data/VaR95_AR1_RV_r.Rdata")
-save(VaR95_HAR_e, file = "Data/VaR95_HAR_e.Rdata")
-save(VaR95_HAR_r, file = "Data/VaR95_HAR_r.Rdata")
-save(VaR95_HAR_AS_e, file = "Data/VaR95_HAR_AS_e.Rdata")
-save(VaR95_HAR_AS_r, file = "Data/VaR95_HAR_AS_r.Rdata")
-save(VaR95_HAR_RS_e, file = "Data/VaR95_HAR_RS_e.Rdata")
-save(VaR95_HAR_RS_r, file = "Data/VaR95_HAR_RS_r.Rdata")
-save(VaR95_HAR_RSRK_e, file = "Data/VaR95_HAR_RSRK_e.Rdata")
-save(VaR95_HAR_RSRK_r, file = "Data/VaR95_HAR_RSRK_r.Rdata")
-save(VaR95_RGARCH_e, file = "Data/VaR95_RGARCH_e.Rdata")
-save(VaR95_RGARCH_r, file = "Data/VaR95_RGARCH_r.Rdata")
-save(VaR95_ARMAGARCH_e, file = "Data/VaR95_ARMAGARCH_e.Rdata")
-save(VaR95_ARMAGARCH_r, file = "Data/VaR95_ARMAGARCH_r.Rdata")
-
-save(Backtests_AR1_RV_e, file = "Data/Backtests_AR1_RV_e.Rdata")
-save(Backtests_AR1_RV_r, file = "Data/Backtests_AR1_RV_r.Rdata")
-save(Backtests_HAR_e, file = "Data/Backtests_HAR_e.Rdata")
-save(Backtests_HAR_r, file = "Data/Backtests_HAR_r.Rdata")
-save(Backtests_HAR_AS_e, file = "Data/Backtests_HAR_AS_e.Rdata")
-save(Backtests_HAR_AS_r, file = "Data/Backtests_HAR_AS_r.Rdata")
-save(Backtests_HAR_RS_e, file = "Data/Backtests_HAR_RS_e.Rdata")
-save(Backtests_HAR_RS_r, file = "Data/Backtests_HAR_RS_r.Rdata")
-save(Backtests_HAR_RSRK_e, file = "Data/Backtests_HAR_RSRK_e.Rdata")
-save(Backtests_HAR_RSRK_r, file = "Data/Backtests_HAR_RSRK_r.Rdata")
-save(Backtests_RGARCH_e, file = "Data/Backtests_RGARCH_e.Rdata")
-save(Backtests_RGARCH_r, file = "Data/Backtests_RGARCH_r.Rdata")
-save(Backtests_ARMAGARCH_e, file = "Data/Backtests_ARMAGARCH_e.Rdata")
-save(Backtests_ARMAGARCH_r, file = "Data/Backtests_ARMAGARCH_r.Rdata")
-
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-
-
-
-
-
-
-
-stockn = "XOM"
-
-sum(retstouse < VaR95_RGARCH_e[[stockn]]) / nrow(VaR95_RGARCH_e[[stockn]])
-
-mean(allstocks[[stockn]]$ret)
-mean(VaR95_AR1_RV_e[[stockn]])
-
-BacktestVaR(data = retstouse, VaR = VaR95_AR1_RV_e[[stockn]], alpha = 0.05)
-
-# < 
-#    VaR95_AR1_RV_e[[stockn]]
-#) / nrow(VaR95_AR1_RV_e[[stockn]])
-
-tail(VaR95_AR1_RV_e)
-
-retstouse1 = allstocks[["AAL"]]$ret[which(
-  (index(allstocks[["AAL"]])>=as.Date("2019-12-03"))   # TODO: Generalize this for any date 
-  &(index(allstocks[["AAL"]])<=as.Date("2020-03-09")))] # TODO: Generalize this for any date 
-
-retstouse2 = allstocks[["XOM"]]$ret[which(
-  (index(allstocks[["XOM"]])>=as.Date("2019-12-03"))   # TODO: Generalize this for any date 
-  &(index(allstocks[["XOM"]])<=as.Date("2020-03-09")))] # TODO: Generalize this for any date 
-
-BackTest1 = BacktestVaR(data = retstouse1, VaR = VaR95_AR1_RV_e[["AAL"]], alpha = 0.05)
-BackTest2 = BacktestVaR(data = retstouse2, VaR = VaR95_AR1_RV_e[["XOM"]], alpha = 0.05)
-
-head(AR1_RV_fc_e_er[["AAL"]])
-head(AR1_RV_fc_e_er[["XOM"]])
-
-head(VaR95_AR1_RV_e[["AAL"]]) 
-head(VaR95_AR1_RV_e[["XOM"]]) 
-
-
-for(i in seq(1:nrow(stocks))){
-  print(stocks$stockname[i])
-}
-
-mean(AR1_RV_fc_e[["AAL"]])
-mean(AR1_RV_fc_e[["XOM"]]) 
-mean(AR1_RV_fc_e[["ACN"]])
-
-var95
-
-sum(VaR95_AR1_RV_e[[stockn]] > AR1_RV_fc_e_er[[stockn]])   
-
-AR1_RV_fc_e_er[[stockn]]
-AR1_RV_fc_r_er[[stockn]]
-HAR_fc_e_er[[stockn]]
-HAR_fc_r_er[[stockn]]
-HAR_AS_fc_e_er[[stockn]]
-HAR_AS_fc_r_er[[stockn]]
-HAR_RSV_fc_e_er[[stockn]]
-HAR_RSV_fc_r_er[[stockn]]
-HAR_RSRK_fc_e_er[[stockn]]
-HAR_RSRK_fc_r_er[[stockn]]
-RGARCH_fc_e_er[[stockn]]
-RGARCH_fc_r_er[[stockn]]
-ARMAGARCH_fc_e_er[[stockn]]
-ARMAGARCH_fc_r_er[[stockn]]
-
-VaR95_AR1_RV_e[[stockn]]
-VaR95_AR1_RV_r[[stockn]]
-VaR95_HAR_e[[stockn]]
-VaR95_HAR_r[[stockn]]
-VaR95_HAR_AS_e[[stockn]]
-VaR95_HAR_AS_r[[stockn]]
-VaR95_HAR_RSV_e[[stockn]]
-VaR95_HAR_RSV_r[[stockn]]
-VaR95_HAR_RSRK_e[[stockn]]
-VaR95_HAR_RSRK_r[[stockn]]
-VaR95_RGARCH_e[[stockn]]
-VaR95_RGARCH_r[[stockn]]
-VaR95_ARMAGARCH_e[[stockn]]
-VaR95_ARMAGARCH_r[[stockn]]

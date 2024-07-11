@@ -150,16 +150,18 @@ VaR <- function(VaRalpha)
     counter = counter + 1 
   }
   
-  VaRmeans = apply(VaRresults_output, MARGIN = 2, FUN = mean)
-  VaRsds = apply(VaRresults_output, MARGIN = 2, FUN = sd)
-  VaRouts = apply(VaRresults_output, MARGIN = 2, FUN = function(x){sum(x<0.05)})
+  VaRresults_output = data.frame(
+    matrix(
+      unlist(lapply(VaRresults, FUN = function(x){x[2]})), 
+      ncol = 14 
+    )
+  ) 
   
-  Kupiec_summary = cbind(VaRmeans, VaRsds, VaRouts) 
-  rownames(Kupiec_summary) = paste(rownames(Kupiec_summary), rep(c("expanding","rolling"),times = 7)) 
-  colnames(Kupiec_summary) = c("Mean","SD","p-val < 0.05")
+  
   
   end_time = Sys.time()
-  print(end_time-start_time)
+  # print(end_time-start_time)
   
+  return(VaRresults_output) 
 }
 

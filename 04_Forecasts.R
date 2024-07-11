@@ -167,7 +167,7 @@ print(end_time-start_time)
 RGARCH_fc_r = list()  
 RGARCH_fc_e = list()  
 
-# Runs approximately 14 hours  
+# Runs approximately 18 hours  
 start_time2 = Sys.time()
 counter = 1 
 

@@ -23,6 +23,7 @@ save(max_possible_date_diff, file = "Data/max_possible_date_diff.Rdata")
 
 save(stocks, file = "Data/stocks.Rdata")  
 save(allstocks, file = "Data/allstocks.Rdata")  
+
 save(HARmeasures, file = "Data/HARmeasures.Rdata")
 
 save(data_aux, file = "Data/data_aux.Rdata") 

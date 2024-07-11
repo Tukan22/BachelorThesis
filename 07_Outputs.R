@@ -238,6 +238,16 @@ print(
 )
 
 
+t(apply(X = MAE_e_output, MARGIN = 1, FUN = order))
+t(apply(X = MAE_r_output, MARGIN = 1, FUN = order))
+t(apply(X = MSE_e_output, MARGIN = 1, FUN = order))
+t(apply(X = MSE_r_output, MARGIN = 1, FUN = order))
+
+
+
+
+
+
 
 ### Better forecasting scheme according to MSE 
 
@@ -293,8 +303,6 @@ print(
   ), 
   file = "Outputs/Better_MAE_2.tex"
 )
-
-
 
 
 print(
@@ -357,10 +365,11 @@ colnames(mincer_p_vals_r) = c("AR(1)-RV", "HAR", "HAR-AS", "HAR-RSV", "HAR-RSRK"
 mincer_p_vals_summary = t(
   rbind(
     apply(mincer_p_vals, MARGIN = 2, FUN = mean), 
-    apply(mincer_p_vals, MARGIN = 2, FUN = sd)
+    apply(mincer_p_vals, MARGIN = 2, FUN = sd), 
+    apply(mincer_p_vals, MARGIN = 2, FUN = function(x){sum(x<0.05)})/nrow(mincer_p_vals) 
   )
 )
-colnames(mincer_p_vals_summary) = c("Mean", "StdDev")
+colnames(mincer_p_vals_summary) = c("Mean", "StdDev", "% p-vals <0.05")
 rownames(mincer_p_vals_summary) = rownames(mincer[[1]]) 
 
 
@@ -405,28 +414,11 @@ print(
 
 
 
-#
-
-
-
-
-
-VaRresults_output = data.frame(
-  matrix(
-    unlist(lapply(VaRresults, FUN = function(x){x[2]})), 
-    ncol = 14 
-  )
-) 
-
 # colnames(VaRresults_output) = c("AR(1)-RV expanding", "AR(1)-RV rolling", "HAR expanding", "HAR rolling", "HAR-AS expanding", 
 #                         "HAR-AS rolling", "HAR-RSV expanding", "HAR-RSV rolling", "HAR-RSRK expanding", "HAR-RSRK rolling", 
 #                         "RGARCH expanding", "RGARCH rolling", "GARCH expanding", "GARCH rolling")
 
-colnames(VaRresults_output) = c("AR(1)-RV", "AR(1)-RV", "HAR", "HAR", "HAR-AS", 
-                                                         "HAR-AS", "HAR-RSV", "HAR-RSV", "HAR-RSRK", "HAR-RSRK", 
-                                                         "RGARCH", "RGARCH", "GARCH", "GARCH")
-                                
-rownames(VaRresults_output) = stocks$stockname  
+
 
 
 
@@ -437,17 +429,21 @@ VaRresults = list()
 Backtests = list() 
 
 for(VaRalpha in c(0.1, 0.05, 0.01)){
-  VaR(VaRalpha)
+  VaRresults_output = VaR(VaRalpha)
+
+  colnames(VaRresults_output) = c("AR(1)-RV", "AR(1)-RV", "HAR", "HAR", "HAR-AS", 
+                                  "HAR-AS", "HAR-RSV", "HAR-RSV", "HAR-RSRK", "HAR-RSRK", 
+                                  "RGARCH", "RGARCH", "GARCH", "GARCH")
   
-  
+  rownames(VaRresults_output) = stocks$stockname  
   
   print(
     xtable(
       VaRresults_output[seq(from = 1, to = nrow(VaRresults_output)/2),
                         seq(from = 1, to = ncol(VaRresults_output), by = 2)], 
       caption = c(
-        paste("This table shows the p-values of the Kuppiec test on ", (1-VaRalpha), " VaR computed using expanding forecast values of all 7 models for the first half of stocks.", sep = ""), 
-        paste("Kupiec test p-values, alpha =", (1-VaRalpha), " (1)", sep = "")), 
+        paste("This table shows the p-values of the Kupiec's test on ", (1-VaRalpha), " VaR computed using expanding forecast values of all 7 models for the first half of stocks.", sep = ""), 
+        paste("Kupiec's test p-values, alpha =", (1-VaRalpha), " (1)", sep = "")), 
       label = paste("Table:Kupiec_test_expanding_",(1-VaRalpha),"_1", sep = "")
     ), 
     file = paste("Outputs/Kupiec_p_vals_e_", (1-VaRalpha), "_1.tex", sep = "") 
@@ -458,8 +454,8 @@ for(VaRalpha in c(0.1, 0.05, 0.01)){
       VaRresults_output[seq(from = nrow(VaRresults_output)/2, to = nrow(VaRresults_output)),
                         seq(from = 1, to = ncol(VaRresults_output), by = 2)], 
       caption = c(
-        paste("This table shows the p-values of the Kuppiec test on ", (1-VaRalpha), " VaR computed using expanding forecast values of all 7 models for the second half of stocks.", sep = ""), 
-        paste("Kupiec test p-values, alpha =", (1-VaRalpha), " (2)", sep = "")), 
+        paste("This table shows the p-values of the Kupiec's test on ", (1-VaRalpha), " VaR computed using expanding forecast values of all 7 models for the second half of stocks.", sep = ""), 
+        paste("Kupiec's test p-values, alpha =", (1-VaRalpha), " (2)", sep = "")), 
       label = paste("Table:Kupiec_test_expanding_",(1-VaRalpha),"_2", sep = "")
     ), 
     file = paste("Outputs/Kupiec_p_vals_e_", (1-VaRalpha), "_2.tex", sep = "") 
@@ -472,8 +468,8 @@ for(VaRalpha in c(0.1, 0.05, 0.01)){
       VaRresults_output[seq(from = 1, to = nrow(VaRresults_output)/2),
                         seq(from = 1, to = ncol(VaRresults_output), by = 2)], 
       caption = c(
-        paste("This table shows the p-values of the Kuppiec test on ", (1-VaRalpha), " VaR computed using rolling forecast values of all 7 models for the first half of stocks.", sep = ""), 
-        paste("Kupiec test p-values, alpha =", (1-VaRalpha), " (1)", sep = "")), 
+        paste("This table shows the p-values of the Kupiec's test on ", (1-VaRalpha), " VaR computed using rolling forecast values of all 7 models for the first half of stocks.", sep = ""), 
+        paste("Kupiec's test p-values, alpha =", (1-VaRalpha), " (1)", sep = "")), 
       label = paste("Table:Kupiec_test_rolling_",(1-VaRalpha),"_1", sep = "")
     ), 
     file = paste("Outputs/Kupiec_p_vals_r_", (1-VaRalpha), "_1.tex", sep = "") 
@@ -484,31 +480,37 @@ for(VaRalpha in c(0.1, 0.05, 0.01)){
       VaRresults_output[seq(from = nrow(VaRresults_output)/2, to = nrow(VaRresults_output)),
                         seq(from = 1, to = ncol(VaRresults_output), by = 2)], 
       caption = c(
-        paste("This table shows the p-values of the Kuppiec test on ", (1-VaRalpha), " VaR computed using rolling forecast values of all 7 models for the second half of stocks.", sep = ""), 
-        paste("Kupiec test p-values, alpha =", (1-VaRalpha), " (2)", sep = "")), 
+        paste("This table shows the p-values of the Kupiec's test on ", (1-VaRalpha), " VaR computed using rolling forecast values of all 7 models for the second half of stocks.", sep = ""), 
+        paste("Kupiec's test p-values, alpha =", (1-VaRalpha), " (2)", sep = "")), 
       label = paste("Table:Kupiec_test_rolling_",(1-VaRalpha),"_2", sep = "")
     ), 
     file = paste("Outputs/Kupiec_p_vals_r_", (1-VaRalpha), "_2.tex", sep = "") 
   )
   
+  
+  VaRmeans = apply(VaRresults_output, MARGIN = 2, FUN = mean)
+  VaRsds = apply(VaRresults_output, MARGIN = 2, FUN = sd)
+  VaRouts = apply(VaRresults_output, MARGIN = 2, FUN = function(x){sum(x<0.05)})/nrow(VaRresults_output)
+  
+  Kupiec_summary = cbind(VaRmeans, VaRsds, VaRouts) 
+  rownames(Kupiec_summary) = paste(rownames(Kupiec_summary), rep(c("expanding","rolling"),times = 7)) 
+  colnames(Kupiec_summary) = c("Mean","SD","p-val < 0.05")
+  
   print(
     xtable(
       Kupiec_summary, 
       caption = c(
-        paste("This table shows the summary statistics of the p-values of the Kuppiec test on ", (1-VaRalpha), " VaR. 
+        paste("This table shows the summary statistics of the p-values of the Kupiec's test on ", (1-VaRalpha), " VaR. 
             The first column shows the mean of p-values, the second column the standard deviation 
             and the third column shows in how many cases the p-value was lower than 0.05, i. e. in how many cases the VaR computation was unsuccesful.",
               sep = ""), 
-        paste("Kupiec test p-values summary, alpha =", (1-VaRalpha), sep = "")), 
+        paste("Kupiec's test p-values summary, alpha =", (1-VaRalpha), sep = "")), 
       label = paste("Table:Kupiec_test_summary_",(1-VaRalpha), sep = ""), 
-      digits = 0 
+      digits = 2 
     ), 
     file = paste("Outputs/Kupiec_p_vals_summary_", (1-VaRalpha), ".tex", sep = "") 
   )
-  
-}
-
-
+  }
 
 
 

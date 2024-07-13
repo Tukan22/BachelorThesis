@@ -46,9 +46,9 @@ for(stockn in stocks$stockname){
                           variance.model = list(garchOrder = c(1, 1)), distribution.model = "std") # TODO GARCH order  
   ARMAGARCH_fit[[stockn]] <- ugarchfit(ARMAGARCH, allstocks[[stockn]]$ret, realizedVol = allstocks[[stockn]]$RV, solver ='hybrid')
   RGARCH<- ugarchspec(variance.model = list(model = 'realGARCH', garchOrder = c(1, 1)), # TODO ARMA order, # TODO GARCH order 
-                      mean.model = list(armaOrder=c(0, 0)),distribution.model = "std") # TODO distribution model 
+                      mean.model = list(armaOrder=c(1, 1)),distribution.model = "std") # TODO distribution model 
   RGARCH_fit[[stockn]] <- ugarchfit(spec = RGARCH, data = allstocks[[stockn]]$ret, realizedVol= allstocks[[stockn]]$RV, solver ='hybrid')
-
+  
   counter = counter + 1   
 }
 end_time = Sys.time()

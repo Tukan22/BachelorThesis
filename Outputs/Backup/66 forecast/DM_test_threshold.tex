@@ -1,0 +1,21 @@
+% latex table generated in R 4.4.1 by xtable 1.8-4 package
+% Thu Jul 11 17:49:20 2024
+\begin{table}[ht]
+\centering
+\begin{tabular}{rlllllll}
+  \hline
+ & AR(1)-RV & HAR & HAR-AS & HAR-RSV & HAR-RSRK & RGARCH & GARCH \\ 
+  \hline
+AR(1)-RV & - & 0.64 & 0.3 & 0.24 & 0.24 & 0.79 & 0.65 \\ 
+  HAR & 0.65 & - & 0 & 0 & 0 & 0.64 & 0.32 \\ 
+  HAR-AS & 0.3 & 0 & - & 0.11 & 0.15 & 0.09 & 0.1 \\ 
+  HAR-RSV & 0.22 & 0 & 0.11 & - & 0.16 & 0.07 & 0.1 \\ 
+  HAR-RSRK & 0.22 & 0 & 0.16 & 0.17 & - & 0.09 & 0.1 \\ 
+  RGARCH & 0.8 & 0.64 & 0.09 & 0.09 & 0.09 & - & 0.51 \\ 
+  GARCH & 0.65 & 0.32 & 0.1 & 0.1 & 0.1 & 0.51 & - \\ 
+   \hline
+\end{tabular}
+\caption[DM test below 0.05]{This table shows the the percentage for how many stocks the p-value of the Diebold-Mariano test was below 0.05 for respective combinations of models.
+                The values below the diagonal are for rolling window forecast, the values above the diagonal are for the expanding window forecast.} 
+\label{Table:DM_test_threshold}
+\end{table}

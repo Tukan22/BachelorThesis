@@ -73,6 +73,8 @@ VaR <- function(VaRalpha)
     
     # Compute VaR for each model 
     VaR95_AR1_RV_e[[stockn]] =    as.xts(mean(allstocks[[stockn]]$ret) + tquantile*(AR1_RV_fc_e[[stockn]]))  
+    
+    
     VaR95_AR1_RV_r[[stockn]] =    as.xts(mean(allstocks[[stockn]]$ret) + tquantile*(AR1_RV_fc_r[[stockn]]))  
     VaR95_HAR_e[[stockn]] =       as.xts(mean(allstocks[[stockn]]$ret) + tquantile*(HAR_fc_e[[stockn]]))  
     VaR95_HAR_r[[stockn]] =       as.xts(mean(allstocks[[stockn]]$ret) + tquantile*(HAR_fc_r[[stockn]]))  

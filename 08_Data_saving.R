@@ -127,3 +127,5 @@ save(Backtests_ARMAGARCH_e, file = "Data/Backtests_ARMAGARCH_e.Rdata")
 save(Backtests_ARMAGARCH_r, file = "Data/Backtests_ARMAGARCH_r.Rdata")
 
 save(wald_test, file = "Data/wald_test.Rdata")
+
+save(VaRresults, file = "Data/Varresults")

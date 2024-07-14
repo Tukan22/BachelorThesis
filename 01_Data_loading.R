@@ -58,7 +58,7 @@ for(filename in setdiff(list.files("Data"), list.dirs("Data", recursive = FALSE,
 # Model parameters - loaded from data 
 
 # minimum_length = 1000 
-# pre_covid_end_date = as.Date("2019-11-29")
+# pre_covid_end_date = as.Date("2019-05-24")
 # n_for = 66 
 # max_possible_date_diff = 21 
-# forecast_start_date = as.Date("2019-11-29") 
+# forecast_start_date = as.Date("2019-05-24") 

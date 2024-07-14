@@ -129,7 +129,6 @@ VaR <- function(VaRalpha)
       unname(Backtests_ARMAGARCH_r[[stockn]]$LRuc[2])   
     )
     
-    
     Perccolname = paste((1-VaRalpha)*100,"% percentage below VaR", sep = "") 
     
     # Percentage returns outside of the alpha-% VaR 

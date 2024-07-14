@@ -28,6 +28,9 @@ print(
   file = "Outputs/JBresid_p_vals_1.tex"
 )
 
+
+
+
 print(
   xtable(cbind(
     JBpvals_out[seq(from = nrow(JBpvals_out)/2+1, to = nrow(JBpvals_out)),]
@@ -52,7 +55,7 @@ rets_out =
     )],
     row.names = stocks$stockname
   )
-colnames(rets_out) = c("Jarque-bera test","Augmented Dickey-Fuller test", "LJung-Box test") 
+colnames(rets_out) = c("Jarque-Bera test","Augmented Dickey-Fuller test", "LJung-Box test") 
 
 print(
   xtable(rets_out[seq(from = 1, to = nrow(rets_out)/2),],
@@ -120,6 +123,67 @@ print(
 
 ### Mean square error 
 ## Expanding scheme 
+
+colors = c("black","red","green","blue","orange","darkgreen", "cyan")
+ltys = c("solid", "solid", "dashed","dotdash","longdash","twodash")
+
+index(MSE_e_output) = rownames(MSE_e_output)
+
+
+
+
+
+titles = c("MSE expanding forecast", "MSE rolling forecast", "MAE expanding forecast", "MAE rolling forecast")
+
+erroroutputs = list(MSE_e_output, MSE_r_output, MAE_e_output, MAE_r_output)
+
+counter = 1 
+
+for(MSEplotdata in erroroutputs){
+  plot(MSEplotdata[,1], 
+       type = 'l', 
+       ylim = c(0,max(MSEplotdata)),
+       xlab = "Individual stocks", 
+       ylab = "MSE",  
+       #     xaxt = 'n', 
+       lab = c(5, 5, 7), 
+       las=2,
+       #      cex.axis = 0.5 
+       main = titles[counter]
+  )
+  
+  for(col in seq(2:ncol(MSEplotdata))){
+    lines(MSEplotdata[,col], 
+          col = colors[col],
+          lty = ltys[col])
+  }
+  
+  legend(x = 0, 
+         y = max(MSEplotdata), 
+         legend = colnames(MSEplotdata), 
+         col = colors, 
+         lty = ltys, 
+         cex = 0.8
+  )
+  
+  # axis(1, at=seq(1, nrow(MSEplotdata), by=1), labels = FALSE)
+  
+  # lablist<-as.vector(c(1:nrow(stocks)))
+  
+  
+  counter = counter + 1}
+
+
+
+
+
+
+
+
+MSE_r_output
+MAE_e_output
+MAE_r_output
+
 
 MSE_e_output = t(as.data.frame(MSE_e)) 
 colnames(MSE_e_output)  <- c("AR(1)-RV", "HAR","HAR-AS", "HAR-RS", "HAR-RSRK", "RGARCH", "GARCH")
@@ -510,7 +574,4 @@ for(VaRalpha in c(0.1, 0.05, 0.01)){
     ), 
     file = paste("Outputs/Kupiec_p_vals_summary_", (1-VaRalpha), ".tex", sep = "") 
   )
-  }
-
-
-
+}

@@ -1,6 +1,7 @@
-pre_covid_end_date = as.Date("2020-02-03") - n_for - 3   
 n_for = 252 
+pre_covid_end_date = as.Date("2020-02-03") - n_for - 3   
 
+# allstocks[["AAPL"]][stocks$w_l[which(stocks$stockname == "AAPL")]]
 
 ### Run Jarque-Bera test for both returns and model residuals and save p-values 
 

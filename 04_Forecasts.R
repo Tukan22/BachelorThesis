@@ -1,6 +1,5 @@
 
 
-
 ##########################
 ######### AR1_RV #########
 ##########################
@@ -338,13 +337,13 @@ print(end_time-start_time)
 RGARCH_fc_r = list()  
 RGARCH_fc_e = list()  
 
-# Runs approximately 5,5 hours  
+# Runs approximately 7,5 hours  
 start_time2 = Sys.time()
 print(start_time2) 
 counter = 1 
 
-for(stockn in c("AAL")){
-# for(stockn in stocks$stockname){
+# for(stockn in c("AAL")){
+for(stockn in stocks$stockname){
   w_l = stocks$w_l[which(stocks$stockname == stockn)]    # TODO set better numbers 
   n_for = stocks$n_for[which(stocks$stockname == stockn)] # TODO set better numbers  
   
@@ -379,8 +378,6 @@ end_time2 = Sys.time()
 print(end_time2-start_time2)
 
 
-
-stockn = "AAL"
 
 # Check where all forecasts produced reasonable results
 # (in some cases, the model does not converge or does some other weird stuff) 

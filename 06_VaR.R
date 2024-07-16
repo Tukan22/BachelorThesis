@@ -129,6 +129,44 @@ VaR <- function(VaRalpha)
       unname(Backtests_ARMAGARCH_r[[stockn]]$LRuc[2])   
     )
     
+    Christoffersencolname = paste((1-VaRalpha)*100,"% Christoffersen p-val", sep = "") 
+    
+    VaRresults[[stockn]][Christoffersencolname] =  c(
+      unname(Backtests_AR1_RV_e[[stockn]]$LRcc[2]), 
+      unname(Backtests_AR1_RV_r[[stockn]]$LRcc[2]), 
+      unname(Backtests_HAR_e[[stockn]]$LRcc[2]),  
+      unname(Backtests_HAR_r[[stockn]]$LRcc[2]),  
+      unname(Backtests_HAR_AS_e[[stockn]]$LRcc[2]),  
+      unname(Backtests_HAR_AS_r[[stockn]]$LRcc[2]),   
+      unname(Backtests_HAR_RS_e[[stockn]]$LRcc[2]),   
+      unname(Backtests_HAR_RS_r[[stockn]]$LRcc[2]),   
+      unname(Backtests_HAR_RSRK_e[[stockn]]$LRcc[2]),   
+      unname(Backtests_HAR_RSRK_r[[stockn]]$LRcc[2]),   
+      unname(Backtests_RGARCH_e[[stockn]]$LRcc[2]),   
+      unname(Backtests_RGARCH_r[[stockn]]$LRcc[2]),   
+      unname(Backtests_ARMAGARCH_e[[stockn]]$LRcc[2]),   
+      unname(Backtests_ARMAGARCH_r[[stockn]]$LRcc[2])   
+    )
+    
+    DQcolname = paste((1-VaRalpha)*100,"% Dynamic quantile p-val", sep = "") 
+    
+    VaRresults[[stockn]][DQcolname] =  c(
+      unname(as.numeric(Backtests_AR1_RV_e[[stockn]]$DQ[[2]])), 
+      unname(as.numeric(Backtests_AR1_RV_r[[stockn]]$DQ[[2]])), 
+      unname(as.numeric(Backtests_HAR_e[[stockn]]$DQ[[2]])),  
+      unname(as.numeric(Backtests_HAR_r[[stockn]]$DQ[[2]])),  
+      unname(as.numeric(Backtests_HAR_AS_e[[stockn]]$DQ[[2]])),  
+      unname(as.numeric(Backtests_HAR_AS_r[[stockn]]$DQ[[2]])),   
+      unname(as.numeric(Backtests_HAR_RS_e[[stockn]]$DQ[[2]])),   
+      unname(as.numeric(Backtests_HAR_RS_r[[stockn]]$DQ[[2]])),   
+      unname(as.numeric(Backtests_HAR_RSRK_e[[stockn]]$DQ[[2]])),   
+      unname(as.numeric(Backtests_HAR_RSRK_r[[stockn]]$DQ[[2]])),   
+      unname(as.numeric(Backtests_RGARCH_e[[stockn]]$DQ[[2]])),   
+      unname(as.numeric(Backtests_RGARCH_r[[stockn]]$DQ[[2]])),   
+      unname(as.numeric(Backtests_ARMAGARCH_e[[stockn]]$DQ[[2]])),   
+      unname(as.numeric(Backtests_ARMAGARCH_r[[stockn]]$DQ[[2]]))   
+    )
+   
     Perccolname = paste((1-VaRalpha)*100,"% percentage below VaR", sep = "") 
     
     # Percentage returns outside of the alpha-% VaR 
@@ -151,18 +189,18 @@ VaR <- function(VaRalpha)
     counter = counter + 1 
   }
   
-  VaRresults_output = data.frame(
+  VaRresults_df = data.frame(
     matrix(
       unlist(lapply(VaRresults, FUN = function(x){x[2]})), 
       ncol = 14 
     )
-  ) 
-  
-  
+  )
   
   end_time = Sys.time()
   # print(end_time-start_time)
   
-  return(VaRresults_output) 
+#  return(VaRresults_output) 
+  
+  return(VaRresults)
 }
 

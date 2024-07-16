@@ -44,40 +44,28 @@ print(
 )
 
 
-# Print a table of p-values for Augmented Dickey-Fuller test, Ljung-Box test, Jarque-Bera test on returns 
+# Ljung-Box test on returns 
 
-rets_out = 
-  as.data.frame(
-    stocks[,c(
-      which(names(stocks)=="JBpval_rets"),
-      which(names(stocks)=="ADFp_val"),
-      which(names(stocks)=="LBp_val")
-    )],
-    row.names = stocks$stockname
-  )
-colnames(rets_out) = c("Jarque-Bera test","Augmented Dickey-Fuller test", "LJung-Box test") 
+# png(file = "Plots/LBpstat.png", width = 4000, height = 3000, units = "px", res = 300)
 
-print(
-  xtable(rets_out[seq(from = 1, to = nrow(rets_out)/2),],
-         caption = c("This table shows the p-values of the Jarque-Bera test, Augmented Dickey-Fuller test and Ljung-Box test 
-                     on returns for the first half of stocks. For the ADF test, a value of $0.01$ means in fact that the p-value is $<0.01$", 
-                     "JB test, ADF test, LB text on returns. (1)"), 
-         label = "Table:Rets_p_vals_1"
-  ),
-  file = "Outputs/Rets_p_vals_1.tex"
-)
+pdf(file = "Plots/LBpstat.pdf", width = 16, height = 12) 
 
-print(
-  xtable(rets_out[seq(from = nrow(rets_out)/2+1, to = nrow(rets_out)),],
-         caption = c("This table shows the p-values of the Jarque-Bera test, Augmented Dickey-Fuller test and Ljung-Box test 
-                     on returns for the second half of stocks. For the ADF test, a value of $0.01$ means in fact that the p-value is $<0.01$", 
-                     "JB test, ADF test, LB text on returns. (2)"), 
-         label = "Table:Rets_p_vals_2"
-  ),
-  file = "Outputs/Rets_p_vals_2.tex"
-)
+plot(stocks$LBp_val, type="o", col="blue", xaxt="n", xlab="Stock", ylab="p-value", main="Ljung-Box test p-statistic", 
+     ylim = c(0 ,max(stocks$LBp_val)*1.1))
+abline(h = 0.05, col = "red", lwd = 2, lty = 2)
 
- 
+# Add the custom x-axis labels, rotate them 90 degrees, and make them smaller
+axis(1, at=1:length(numbers), labels=FALSE, xaxt ='n')
+indent = 10^(round(log(mean(plotvar), base = 10))-2)*5  
+text(x=1:length(numbers), y=par("usr")[3] - 0.01 , labels=rownames(MSE_e_output), srt=90, adj=1, xpd=TRUE, cex=1)
+
+# Add a grid for better readability
+grid(nx = nrow(stocks) + 5)
+legend("topleft", legend = c("Ljung-Box p-stat","0.05"), col = c("blue","red"), lty = c(1,2), lwd = 1)
+
+dev.off() 
+
+
 
 # Print basic overview of used stocks 
 
@@ -96,27 +84,53 @@ overview = cbind(sd, ed, rest)
 colnames(overview) = c("Start date","End date", "Observations", paste("Observations before",pre_covid_end_date))
 
 
-print(
-  xtable(overview[seq(from = 1, to = nrow(overview)/2),],
-         caption = c(paste("This table shows the overview for the first half of stocks of basic end date, start date, number of observations and number of observations 
+
+
+overview_side = cbind(
+  rownames(  overview[seq(from = 1, to = nrow(overview)/2),]),
+  overview[seq(from = 1, to = nrow(overview)/2),], 
+  rownames(overview[seq(from = nrow(overview)/2+1, to = nrow(overview)),]),
+  overview[seq(from = nrow(overview)/2+1, to = nrow(overview)),]
+  ) 
+
+colnames(overview_side) = rep(c("Stock","Start","End date", "Obs", paste("Obs bef.",pre_covid_end_date)), times = 2)  
+
+
+ print(
+   xtable(overview_side,
+         caption = c(paste("This table shows the overview of start date, end date, number of observations and number of observations 
                      for the before covid training set, i. e. observations prior to ",pre_covid_end_date, sep =""), 
-                     "Overview_1"), 
-         label = "Table:Overview_1", 
+                     "Overview"), 
+         label = "Table:Overview", 
          auto = TRUE
   ),
-  file = "Outputs/Overview_1.tex"
+  file = "Outputs/Overview.tex", 
 )
 
-print(
-  xtable(overview[seq(from = nrow(overview)/2+1, to = nrow(overview)),],
-         caption = c(paste("This table shows the overview for the second half of stocks of basic end date, start date, number of observations and number of observations 
-                     for the before covid training set, i. e. observations prior to ",pre_covid_end_date, sep =""), 
-                     "Overview_2"), 
-         label = "Table:Overview_2", 
-         auto = TRUE
-  ),
-  file = "Outputs/Overview_2.tex"
-)
+
+
+# print(
+#   xtable(overview[seq(from = 1, to = nrow(overview)/2),],
+#         caption = c(paste("This table shows the overview for the first half of stocks of basic end date, start date, number of observations and number of observations 
+#                     for the before covid training set, i. e. observations prior to ",pre_covid_end_date, sep =""), 
+#                     "Overview_1"), 
+#         label = "Table:Overview_1", 
+#         auto = TRUE
+#  ),
+#  file = "Outputs/Overview_1.tex"
+#)
+
+#print(
+#  xtable(overview[seq(from = nrow(overview)/2+1, to = nrow(overview)),],
+#         caption = c(paste("This table shows the overview for the second half of stocks of basic end date, start date, number of observations and number of observations 
+#                     for the before covid training set, i. e. observations prior to ",pre_covid_end_date, sep =""), 
+#                     "Overview_2"), 
+#         label = "Table:Overview_2", 
+#         auto = TRUE
+#  ),
+#  file = "Outputs/Overview_2.tex"
+#)
+
 
 
 # TODO Now: MSE, MAE - probably put into one table a check whether the better scheme (expanding/rolling) is the same for both types of errors 
@@ -124,284 +138,90 @@ print(
 ### Mean square error 
 ## Expanding scheme 
 
+
+# index(MSE_e_output) = rownames(MSE_e_output)
 colors = c("black","red","green","blue","orange","darkgreen", "cyan")
 ltys = c("solid", "solid", "dashed","dotdash","longdash","twodash")
-
-index(MSE_e_output) = rownames(MSE_e_output)
-
-
-
-
-
 titles = c("MSE expanding forecast", "MSE rolling forecast", "MAE expanding forecast", "MAE rolling forecast")
-
+ylabs = c("MSE","MSE","MAE","MAE")
 erroroutputs = list(MSE_e_output, MSE_r_output, MAE_e_output, MAE_r_output)
 
-counter = 1 
 
-for(MSEplotdata in erroroutputs){
-  plot(MSEplotdata[,1], 
-       type = 'l', 
-       ylim = c(0,max(MSEplotdata)),
-       xlab = "Individual stocks", 
-       ylab = "MSE",  
-       #     xaxt = 'n', 
-       lab = c(5, 5, 7), 
-       las=2,
-       #      cex.axis = 0.5 
-       main = titles[counter]
-  )
+for(varno in seq(from = 1, to = 4, by = 1)){
+  pdf(file =   paste("Plots/",str_replace_all(titles[varno], " ","_"),".pdf", sep =""), width = 16, height = 12)  
   
-  for(col in seq(2:ncol(MSEplotdata))){
-    lines(MSEplotdata[,col], 
-          col = colors[col],
-          lty = ltys[col])
+  plotvar = erroroutputs[[varno]]
+  # Create a plot without the x-axis
+  plot(plotvar[,1], type="l", col="black", xaxt="n", xlab="Custom Labels", ylab=ylabs[varno], main=titles[varno], ylim = c(0 ,max(plotvar)*1.1))
+  
+  for(i in seq(from = 2, to = ncol(plotvar), by = 1)){
+    lines(plotvar[,i], type="l", col=colors[i]) 
   }
   
+  # Add the custom x-axis labels, rotate them 90 degrees, and make them smaller
+  axis(1, at=1:length(numbers), labels=FALSE, xaxt ='n')
+  indent = 10^(round(log(mean(plotvar), base = 10))-2)*5  
+  text(x=1:length(numbers), y=par("usr")[3] , labels=rownames(MSE_e_output), srt=90, adj=1, xpd=TRUE, cex=1)
+  
+  # Add a grid for better readability
+  grid(nx = nrow(stocks) + 5)
   legend(x = 0, 
-         y = max(MSEplotdata), 
-         legend = colnames(MSEplotdata), 
+         y = max(plotvar)*1.1, 
+         legend = colnames(plotvar), 
          col = colors, 
          lty = ltys, 
-         cex = 0.8
+         cex = 1
   )
   
-  # axis(1, at=seq(1, nrow(MSEplotdata), by=1), labels = FALSE)
-  
-  # lablist<-as.vector(c(1:nrow(stocks)))
-  
-  
-  counter = counter + 1}
+  dev.off() 
+}
 
 
-
-
-
-
-
-
-MSE_r_output
-MAE_e_output
-MAE_r_output
-
-
-MSE_e_output = t(as.data.frame(MSE_e)) 
-colnames(MSE_e_output)  <- c("AR(1)-RV", "HAR","HAR-AS", "HAR-RS", "HAR-RSRK", "RGARCH", "GARCH")
-
-print(
-  xtable(
-    1000*MSE_e_output[seq(from = 1, to = nrow(MSE_e_output)/2),],
-         caption = c("This table shows the mean square errors of expanding forecast scheme for each type of model for the first half of stocks. 
-                     The values are multiplied by 1000", 
-                     "MSE expanding forecast (1)"), 
-         label = "Table:MSE_e_1", 
-         digits = 3 
-  ),
-  file = "Outputs/MSE_e_1.tex"
+errmeans = rbind(
+  apply(MSE_e_output, MARGIN = 2, FUN = mean), 
+  apply(MSE_r_output, MARGIN = 2, FUN = mean), 
+  apply(MAE_e_output, MARGIN = 2, FUN = mean), 
+  apply(MAE_r_output, MARGIN = 2, FUN = mean) 
 )
+rownames(errmeans) = c("MSE expanding", "MSE rolling", "MAE expanding", "MAE rolling")
+errmeans_text = apply(errmeans, MARGIN = 2, FUN = function(x){sprintf("%.5f", x)} )
 
-print(
-  xtable(
-    1000*MSE_e_output[seq(from = nrow(MSE_e_output)/2+1, to = nrow(MSE_e_output)),],
-    caption = c("This table shows the mean square errors of expanding forecast scheme for each type of model for the second half of stocks. 
-                     The values are multiplied by 1000", 
-                "MSE expanding forecast (2)"), 
-    label = "Table:MSE_e_2", 
-    digits = 3 
-  ),
-  file = "Outputs/MSE_e_2.tex"
+errsds = rbind(
+  apply(MSE_e_output, MARGIN = 2, FUN = sd), 
+  apply(MSE_r_output, MARGIN = 2, FUN = sd), 
+  apply(MAE_e_output, MARGIN = 2, FUN = sd), 
+  apply(MAE_r_output, MARGIN = 2, FUN = sd) 
 )
+rownames(errsds) = c("MSE expanding", "MSE rolling", "MAE expanding", "MAE rolling")
 
-## Rolling scheme 
+errorders = t(apply(errmeans, MARGIN = 1, FUN = order)) 
+errorders_text = t(apply(errorders, MARGIN = 1, FUN = as.character)) 
 
-MSE_r_output = t(as.data.frame(MSE_r)) 
-colnames(MSE_r_output)  <- c("AR(1)-RV", "HAR","HAR-AS", "HAR-RS", "HAR-RSRK", "RGARCH", "GARCH")
-
-print(
-  xtable(
-    1000*MSE_r_output[seq(from = 1, to = nrow(MSE_r_output)/2),],
-    caption = c("This table shows the mean square errors of rolling forecast scheme for each type of model for the first half of stocks. 
-                     The values are multiplied by 1000", 
-                "MSE rolling forecast (1)"), 
-    label = "Table:MSE_r_1", 
-    digits = 3 
-  ),
-  file = "Outputs/MSE_r_1.tex"
-)
+err_means_order_text = matrix(paste(matrix(errmeans_text), " (", errorders_text, ")", sep = ""), nrow = nrow(errmeans_text)) 
+rownames(err_means_order_text) = rownames(errmeans)
+colnames(err_means_order_text) = colnames(errmeans) 
 
 print(
   xtable(
-    1000*MSE_e_output[seq(from = nrow(MSE_r_output)/2+1, to = nrow(MSE_r_output)),],
-    caption = c("This table shows the mean square errors of rolling forecast scheme for each type of model for the second half of stocks. 
-                     The values are multiplied by 1000", 
-                "MSE rolling forecast (2)"), 
-    label = "Table:MSE_r_2", 
-    digits = 3 
-  ),
-  file = "Outputs/MSE_r_2.tex"
-)
-
-
-### Mean absolute error 
-## Expanding scheme 
-
-MAE_e_output = t(as.data.frame(MAE_e)) 
-colnames(MAE_e_output)  <- c("AR(1)-RV", "HAR","HAR-AS", "HAR-RS", "HAR-RSRK", "RGARCH", "GARCH")
-
-print(
-  xtable(
-    1000*MAE_e_output[seq(from = 1, to = nrow(MAE_e_output)/2),],
-    caption = c("This table shows the mean absolute errors of expanding forecast scheme for each type of model for the first half of stocks. 
-                     The values are multiplied by 1000", 
-                "MAE expanding forecast (1)"), 
-    label = "Table:MAE_e_1", 
-    digits = 3 
-  ),
-  file = "Outputs/MAE_e_1.tex"
-)
-
-print(
-  xtable(
-    1000*MAE_e_output[seq(from = nrow(MAE_e_output)/2+1, to = nrow(MAE_e_output)),],
-    caption = c("This table shows the mean absolute errors of expanding forecast scheme for each type of model for the second half of stocks. 
-                     The values are multiplied by 1000", 
-                "MAE expanding forecast (2)"), 
-    label = "Table:MAE_e_2", 
-    digits = 3 
-  ),
-  file = "Outputs/MAE_e_2.tex"
-)
-
-## Rolling scheme 
-
-MAE_r_output = t(as.data.frame(MAE_r)) 
-colnames(MAE_r_output)  <- c("AR(1)-RV", "HAR","HAR-AS", "HAR-RS", "HAR-RSRK", "RGARCH", "GARCH")
-
-print(
-  xtable(
-    1000*MAE_r_output[seq(from = 1, to = nrow(MAE_r_output)/2),],
-    caption = c("This table shows the mean absolute errors of rolling forecast scheme for each type of model for the first half of stocks. 
-                     The values are multiplied by 1000", 
-                "MAE rolling forecast (1)"), 
-    label = "Table:MAE_r_1", 
-    digits = 3 
-  ),
-  file = "Outputs/MAE_r_1.tex"
-)
-
-print(
-  xtable(
-    1000*MAE_e_output[seq(from = nrow(MAE_r_output)/2+1, to = nrow(MAE_r_output)),],
-    caption = c("This table shows the mean absolute errors of rolling forecast scheme for each type of model for the second half of stocks. 
-                     The values are multiplied by 1000", 
-                "MAE rolling forecast (2)"), 
-    label = "Table:MAE_r_2", 
-    digits = 3 
-  ),
-  file = "Outputs/MAE_r_2.tex"
-)
-
-
-t(apply(X = MAE_e_output, MARGIN = 1, FUN = order))
-t(apply(X = MAE_r_output, MARGIN = 1, FUN = order))
-t(apply(X = MSE_e_output, MARGIN = 1, FUN = order))
-t(apply(X = MSE_r_output, MARGIN = 1, FUN = order))
-
-
-
-
-
-
-
-### Better forecasting scheme according to MSE 
-
-better_MSE = ifelse(MSE_r_output > MSE_e_output, "Expanding", "Rolling")
-
-print(
-  xtable(
-    better_MSE[seq(from = 1, to = nrow(better_MSE)/2),], 
-    caption = c("This table shows which forecasting scheme performs better on the training set, according to mean square error 
-              for each model and the first half of stocks.",
-                "Better scheme MSE (1)"),
-    label = "Table:Better_MSE_1"
+    err_means_order_text, 
+    caption = c("This table shows the means of error measures for each model with its order (smallest to largest) for each respective error measure and forecasting window in parentheses. ", 
+                "Error measures means"), 
+    label = "Table:Error_means", 
+    digits = 5 
   ), 
-  file = "Outputs/Better_MSE_1.tex"
+  file = "Outputs/Error_means.tex" 
 )
-
 
 print(
   xtable(
-    better_MSE[seq(from = nrow(better_MSE)/2+1, to = nrow(better_MSE)),], 
-    caption = c("This table shows which forecasting scheme performs better on the training set, according to mean square error
-              for each model and the second half of stocks.",
-                "Better scheme MSE (2)"),
-    label = "Table:Better_MSE_2"
+    errsds, 
+    caption = c("This table shows the standard deviations of error measures for each model. ", 
+                "Error measures stddevs"), 
+    label = "Table:Error_stddevs", 
+    digits = 5 
   ), 
-  file = "Outputs/Better_MSE_2.tex"
+  file = "Outputs/Error_stddevs.tex" 
 )
-
-
-### Better forecasting scheme according to MAE 
-
-better_MAE = ifelse(MAE_r_output > MAE_e_output, "Expanding", "Rolling")
-
-print(
-  xtable(
-    better_MAE[seq(from = 1, to = nrow(better_MAE)/2),], 
-    caption = c("This table shows which forecasting scheme performs better on the training set, according to mean absolute error 
-              for each model and the first half of stocks.",
-                "Better scheme MAE (1)"),
-    label = "Table:Better_MAE_1"
-  ), 
-  file = "Outputs/Better_MAE_1.tex"
-)
-
-
-print(
-  xtable(
-    better_MAE[seq(from = nrow(better_MAE)/2+1, to = nrow(better_MAE)),], 
-    caption = c("This table shows which forecasting scheme performs better on the training set, according to mean absolute error
-              for each model and the second half of stocks.",
-                "Better scheme MAE (2)"),
-    label = "Table:Better_MAE_2"
-  ), 
-  file = "Outputs/Better_MAE_2.tex"
-)
-
-
-print(
-  xtable(
-    as.data.frame(
-      rbind(
-        colSums(better_MSE == "Rolling"),
-        colSums(better_MSE == "Expanding")
-      ),
-      row.names = c("Rolling","Expanding")
-    ), 
-    caption = c("This table shows a summary of how many stocks for each model perform better with expanding or rolling forecasting scheme according to mean square error. ",
-                "Better scheme MSE summary"), 
-    label = "Table:Better_MSE_summary"
-  ),
-  file = "Outputs/Better_MSE_summary.tex"
-)
-
-print(
-  xtable(
-    as.data.frame(
-      rbind(
-        colSums(better_MAE == "Rolling"),
-        colSums(better_MAE == "Expanding")
-      ),
-      row.names = c("Rolling","Expanding")
-    ), 
-    caption = c("This table shows a summary of how many stocks for each model perform better with expanding or rolling forecasting scheme according to mean absolute error. ",
-                "Better scheme MAE summary"), 
-    label = "Table:Better_MAE_summary"
-  ), 
-  file = "Outputs/Better_MAE_summary.tex"
-)
-
-
 
 
 ### Mincer-Zarnowitz regression results 
@@ -485,93 +305,43 @@ print(
 
 
 
-
-
 # TODO: This needs to be run 3 times for each level of alpha 
 
 VaRresults = list() 
 Backtests = list() 
 
+MeanVarValues_2 = data.frame(matrix(rep(NA, times = 14), ncol = 1))
+
 for(VaRalpha in c(0.1, 0.05, 0.01)){
   VaRresults_output = VaR(VaRalpha)
+  
+  meanVaRvalues = data.frame(matrix(rep(NA, times = 4*14), ncol = 4))
+  
+  for(model in seq(from = 1, to = 14, by = 1)){
+    for(col in seq(from = 2, to = 5, step = 1)){
+      meanVaRvalues[model, col-1] = 
+        mean(unlist(lapply(VaRresults_output, FUN = function(x){
+          lapply(x[col],  FUN = function(y){y[model]})
+        })))
+    }
+  }
 
-  colnames(VaRresults_output) = c("AR(1)-RV", "AR(1)-RV", "HAR", "HAR", "HAR-AS", 
-                                  "HAR-AS", "HAR-RSV", "HAR-RSV", "HAR-RSRK", "HAR-RSRK", 
-                                  "RGARCH", "RGARCH", "GARCH", "GARCH")
-  
-  rownames(VaRresults_output) = stocks$stockname  
-  
-  print(
-    xtable(
-      VaRresults_output[seq(from = 1, to = nrow(VaRresults_output)/2),
-                        seq(from = 1, to = ncol(VaRresults_output), by = 2)], 
-      caption = c(
-        paste("This table shows the p-values of the Kupiec's test on ", (1-VaRalpha), " VaR computed using expanding forecast values of all 7 models for the first half of stocks.", sep = ""), 
-        paste("Kupiec's test p-values, alpha =", (1-VaRalpha), " (1)", sep = "")), 
-      label = paste("Table:Kupiec_test_expanding_",(1-VaRalpha),"_1", sep = "")
-    ), 
-    file = paste("Outputs/Kupiec_p_vals_e_", (1-VaRalpha), "_1.tex", sep = "") 
-  )
-  
-  print(
-    xtable(
-      VaRresults_output[seq(from = nrow(VaRresults_output)/2, to = nrow(VaRresults_output)),
-                        seq(from = 1, to = ncol(VaRresults_output), by = 2)], 
-      caption = c(
-        paste("This table shows the p-values of the Kupiec's test on ", (1-VaRalpha), " VaR computed using expanding forecast values of all 7 models for the second half of stocks.", sep = ""), 
-        paste("Kupiec's test p-values, alpha =", (1-VaRalpha), " (2)", sep = "")), 
-      label = paste("Table:Kupiec_test_expanding_",(1-VaRalpha),"_2", sep = "")
-    ), 
-    file = paste("Outputs/Kupiec_p_vals_e_", (1-VaRalpha), "_2.tex", sep = "") 
-  )
-  
-  
-  
-  print(
-    xtable(
-      VaRresults_output[seq(from = 1, to = nrow(VaRresults_output)/2),
-                        seq(from = 1, to = ncol(VaRresults_output), by = 2)], 
-      caption = c(
-        paste("This table shows the p-values of the Kupiec's test on ", (1-VaRalpha), " VaR computed using rolling forecast values of all 7 models for the first half of stocks.", sep = ""), 
-        paste("Kupiec's test p-values, alpha =", (1-VaRalpha), " (1)", sep = "")), 
-      label = paste("Table:Kupiec_test_rolling_",(1-VaRalpha),"_1", sep = "")
-    ), 
-    file = paste("Outputs/Kupiec_p_vals_r_", (1-VaRalpha), "_1.tex", sep = "") 
-  )
-  
-  print(
-    xtable(
-      VaRresults_output[seq(from = nrow(VaRresults_output)/2, to = nrow(VaRresults_output)),
-                        seq(from = 1, to = ncol(VaRresults_output), by = 2)], 
-      caption = c(
-        paste("This table shows the p-values of the Kupiec's test on ", (1-VaRalpha), " VaR computed using rolling forecast values of all 7 models for the second half of stocks.", sep = ""), 
-        paste("Kupiec's test p-values, alpha =", (1-VaRalpha), " (2)", sep = "")), 
-      label = paste("Table:Kupiec_test_rolling_",(1-VaRalpha),"_2", sep = "")
-    ), 
-    file = paste("Outputs/Kupiec_p_vals_r_", (1-VaRalpha), "_2.tex", sep = "") 
-  )
-  
-  
-  VaRmeans = apply(VaRresults_output, MARGIN = 2, FUN = mean)
-  VaRsds = apply(VaRresults_output, MARGIN = 2, FUN = sd)
-  VaRouts = apply(VaRresults_output, MARGIN = 2, FUN = function(x){sum(x<0.05)})/nrow(VaRresults_output)
-  
-  Kupiec_summary = cbind(VaRmeans, VaRsds, VaRouts) 
-  rownames(Kupiec_summary) = paste(rownames(Kupiec_summary), rep(c("expanding","rolling"),times = 7)) 
-  colnames(Kupiec_summary) = c("Mean","SD","p-val < 0.05")
-  
-  print(
-    xtable(
-      Kupiec_summary, 
-      caption = c(
-        paste("This table shows the summary statistics of the p-values of the Kupiec's test on ", (1-VaRalpha), " VaR. 
-            The first column shows the mean of p-values, the second column the standard deviation 
-            and the third column shows in how many cases the p-value was lower than 0.05, i. e. in how many cases the VaR computation was unsuccesful.",
-              sep = ""), 
-        paste("Kupiec's test p-values summary, alpha =", (1-VaRalpha), sep = "")), 
-      label = paste("Table:Kupiec_test_summary_",(1-VaRalpha), sep = ""), 
-      digits = 2 
-    ), 
-    file = paste("Outputs/Kupiec_p_vals_summary_", (1-VaRalpha), ".tex", sep = "") 
-  )
+  colnames(meanVaRvalues) = colnames(VaRresults_output[[1]])[2:5] 
+  rownames(meanVaRvalues) = c("AR(1)-RV expanding", "AR(1)-RV rolling", "HAR expanding", "HAR rolling", 
+                              "HAR-AS expanding", "HAR-AS rolling", "HAR-RSV expanding", "HAR-RSV rolling", 
+                              "HAR-RSRK expanding", "HAR-RSRK rolling", "RGARCH expanding", "RGARCH rolling", 
+                              "GARCH expanding", "GARCH rolling")
+    
+  MeanVarValues_2 = cbind(MeanVarValues_2, meanVaRvalues)  
 }
+
+MeanVarValues_2 = MeanVarValues_2[-1]
+
+apply(MeanVarValues_2, FUN = order, MARGIN = 2)
+
+MeanVarValues_2[,c(1,5,9)]
+MeanVarValues_2[,c(2,6,10)]
+MeanVarValues_2[,c(3,7,11)]
+MeanVarValues_2[,c(4,8,12)]
+
+apply(MeanVarValues_2[,c(4,8,12)], MARGIN = 2 , FUN = order) # !!! SEEMS IT DOES NOT WORK PROPERLY !!! 

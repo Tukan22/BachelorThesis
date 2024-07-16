@@ -1,4 +1,4 @@
-
+library(stringr)
 library(arrow)
 library(xts)
 library(graphics)

@@ -110,7 +110,7 @@ VaR <- function(VaRalpha)
     
     # Kupiec test p-values
     
-    Kupieccolname = paste((1-VaRalpha)*100,"% Kupiec p-val", sep = "") 
+    Kupieccolname = paste((1-VaRalpha)*100,"% Kup.", sep = "") 
     
     VaRresults[[stockn]][Kupieccolname] =  c(
       unname(Backtests_AR1_RV_e[[stockn]]$LRuc[2]), 
@@ -129,7 +129,7 @@ VaR <- function(VaRalpha)
       unname(Backtests_ARMAGARCH_r[[stockn]]$LRuc[2])   
     )
     
-    Christoffersencolname = paste((1-VaRalpha)*100,"% Christoffersen p-val", sep = "") 
+    Christoffersencolname = paste((1-VaRalpha)*100,"% Chr.", sep = "") 
     
     VaRresults[[stockn]][Christoffersencolname] =  c(
       unname(Backtests_AR1_RV_e[[stockn]]$LRcc[2]), 
@@ -148,7 +148,7 @@ VaR <- function(VaRalpha)
       unname(Backtests_ARMAGARCH_r[[stockn]]$LRcc[2])   
     )
     
-    DQcolname = paste((1-VaRalpha)*100,"% Dynamic quantile p-val", sep = "") 
+    DQcolname = paste((1-VaRalpha)*100,"% DQ", sep = "") 
     
     VaRresults[[stockn]][DQcolname] =  c(
       unname(as.numeric(Backtests_AR1_RV_e[[stockn]]$DQ[[2]])), 
@@ -167,7 +167,7 @@ VaR <- function(VaRalpha)
       unname(as.numeric(Backtests_ARMAGARCH_r[[stockn]]$DQ[[2]]))   
     )
    
-    Perccolname = paste((1-VaRalpha)*100,"% percentage below VaR", sep = "") 
+    Perccolname = paste((1-VaRalpha)*100,"% Hit rate", sep = "") 
     
     # Percentage returns outside of the alpha-% VaR 
     VaRresults[[stockn]][Perccolname] = c(

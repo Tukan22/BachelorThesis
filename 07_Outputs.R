@@ -1,4 +1,22 @@
 
+###############################
+### Plot of mean vs. stddev ###
+###############################
+
+pdf(file = "Plots/Meanstddev.pdf", width = 16, height = 12) 
+
+plot(
+  x = unlist(lapply(allstocks, FUN = function(x){mean(x$ret)})), 
+  y = unlist(lapply(allstocks, FUN = function(x){sd(x$ret)})), 
+  xlab = "Mean", ylab = "Standard deviation", 
+  main = "SD vs. mean of selected stocks", 
+  cex.main = 3, 
+  cex.lab = 1.4, 
+  cex.axis = 1.3
+)
+model = lm(unlist(lapply(allstocks, FUN = function(x){sd(x$ret)}))~unlist(lapply(allstocks, FUN = function(x){mean(x$ret)})), )
+
+dev.off() 
 
 
 ##############################################
@@ -70,9 +88,30 @@ dev.off()
 
 
 
-####################################
-### Basic overview of usedstocks ###
-####################################
+###################################
+### Ljung-Box test on residuals ### 
+################################### 
+
+pdf(file = "Plots/LBresidpval.pdf", width = 16, height = 12) 
+
+LBresid =   unlist(
+  lapply(
+    ARMA_fit, 
+    FUN = function(x){
+      Box.test(x$residuals, type = 'Ljung-Box',lag = 5)$p.value
+    }
+  )
+)
+
+boxplot(LBresid, type = 'o', main = "Ljung-Box test on residuals of ARMA(1,1) model", yaxt = 'n', cex.main = 2, xlab = "p-value", cex.lab = 2)
+abline(h = 0.05, col = "red", lty = 2, lwd = 2)
+axis(2, at=seq(from = 0, to = 1, by = 0.05), labels=TRUE, las = 2, cex.axis = 1.8)
+
+dev.off() 
+
+#####################################
+### Basic overview of used stocks ###
+#####################################
 
 sd = as.data.frame(as.character(stocks$start_date),row.names = stocks$stockname)
 ed = as.data.frame(as.character(stocks$end_date),row.names = stocks$stockname) 
@@ -125,87 +164,24 @@ colnames(MSE_r_output) = c("AR(1)-RV", "HAR", "HAR-AS", "HAR-RSV", "HAR-RSRK", "
 colnames(MAE_e_output) = c("AR(1)-RV", "HAR", "HAR-AS", "HAR-RSV", "HAR-RSRK", "RGARCH", "GARCH")  
 colnames(MAE_r_output) = c("AR(1)-RV", "HAR", "HAR-AS", "HAR-RSV", "HAR-RSRK", "RGARCH", "GARCH")  
 
-
-colors = c("black","red","green","blue","orange","darkgreen", "cyan")
-ltys = c("solid", "solid", "dashed","dotdash","longdash","twodash")
-titles = c("MSE expanding forecast", "MSE rolling forecast", "MAE expanding forecast", "MAE rolling forecast")
-ylabs = c("MSE","MSE","MAE","MAE")
 erroroutputs = list(MSE_e_output, MSE_r_output, MAE_e_output, MAE_r_output)
 
+
+pdf(file = "Plots/Errors.pdf", width = 16, height = 12) 
+
+par(mfrow = c(2,2))
 for(varno in seq(from = 1, to = 4, by = 1)){
-  pdf(file =   paste("Plots/",str_replace_all(titles[varno], " ","_"),".pdf", sep =""), width = 16, height = 12)  
-  
+  #  pdf(file =   paste("Plots/",str_replace_all(titles[varno], " ","_"),".pdf", sep =""), width = 16, height = 12)  
   plotvar = erroroutputs[[varno]]
-  # Create a plot without the x-axis
-  plot(plotvar[,1], type="l", col="black", xaxt="n", xlab="Custom Labels", ylab=ylabs[varno], main=titles[varno], ylim = c(0 ,max(plotvar)*1.1))
-  
-  for(i in seq(from = 2, to = ncol(plotvar), by = 1)){
-    lines(plotvar[,i], type="l", col=colors[i]) 
-  }
-  
-  # Add the custom x-axis labels, rotate them 90 degrees, and make them smaller
-  axis(1, at=1:nrow(stocks), labels=FALSE, xaxt ='n')
-  indent = 10^(round(log(mean(plotvar), base = 10))-2)*5  
-  text(x=1:nrow(stocks), y=par("usr")[3] , labels=rownames(MSE_e_output), srt=90, adj=1, xpd=TRUE, cex=1)
-  
-  # Add a grid for better readability
-  grid(nx = nrow(stocks) + 5)
-  legend(x = 0, 
-         y = max(plotvar)*1.1, 
-         legend = colnames(plotvar), 
-         col = colors, 
-         lty = ltys, 
-         cex = 1
-  )
-  dev.off() 
+
+  boxplot(plotvar, main=titles[varno], outline = FALSE, cex.main = 2) 
+
+  #  dev.off() 
 }
 
-errmeans = rbind(
-  apply(MSE_e_output, MARGIN = 2, FUN = mean), 
-  apply(MSE_r_output, MARGIN = 2, FUN = mean), 
-  apply(MAE_e_output, MARGIN = 2, FUN = mean), 
-  apply(MAE_r_output, MARGIN = 2, FUN = mean) 
-)
+par(mfrow = c(1, 1))
 
-rownames(errmeans) = c("MSE expanding", "MSE rolling", "MAE expanding", "MAE rolling")
-errmeans_text = apply(errmeans, MARGIN = 2, FUN = function(x){sprintf("%.5f", x)} )
-
-errsds = rbind(
-  apply(MSE_e_output, MARGIN = 2, FUN = sd), 
-  apply(MSE_r_output, MARGIN = 2, FUN = sd), 
-  apply(MAE_e_output, MARGIN = 2, FUN = sd), 
-  apply(MAE_r_output, MARGIN = 2, FUN = sd) 
-)
-rownames(errsds) = c("MSE expanding", "MSE rolling", "MAE expanding", "MAE rolling")
-
-errorders = t(apply(errmeans, MARGIN = 1, FUN = rank)) 
-errorders_text = t(apply(errorders, MARGIN = 1, FUN = as.character)) 
-
-err_means_order_text = matrix(paste(matrix(errmeans_text), " (", errorders_text, ")", sep = ""), nrow = nrow(errmeans_text)) 
-rownames(err_means_order_text) = rownames(errmeans)
-colnames(err_means_order_text) = colnames(errmeans) 
-
-print(
-  xtable(
-    err_means_order_text, 
-    caption = c("This table shows the means of error measures for each model with its rank (smallest to largest) for each respective error measure and forecasting window in parentheses. ", 
-                "Error measures means"), 
-    label = "Table:Error_means", 
-    digits = 5 
-  ), 
-  file = "Outputs/Error_means.tex" 
-)
-
-print(
-  xtable(
-    errsds, 
-    caption = c("This table shows the standard deviations of error measures for each model. ", 
-                "Error measures stddevs"), 
-    label = "Table:Error_stddevs", 
-    digits = 5 
-  ), 
-  file = "Outputs/Error_stddevs.tex" 
-)
+dev.off() 
 
 
 
@@ -224,37 +200,63 @@ mincer_p_vals =
         #        )
       })))
 
-mincer_p_vals_e = mincer_p_vals[,c(1,3,5,7,9,11,13)]
-mincer_p_vals_r = mincer_p_vals[,c(2,4,6,8,10,12,14)]
-colnames(mincer_p_vals_e) = c("AR(1)-RV", "HAR", "HAR-AS", "HAR-RSV", "HAR-RSRK", "RGARCH", "GARCH")  
-colnames(mincer_p_vals_r) = c("AR(1)-RV", "HAR", "HAR-AS", "HAR-RSV", "HAR-RSRK", "RGARCH", "GARCH")
 
-mincer_p_vals_summary = t(
-  rbind(
-    apply(mincer_p_vals, MARGIN = 2, FUN = mean), 
-    apply(mincer_p_vals, MARGIN = 2, FUN = sd), 
-    apply(mincer_p_vals, MARGIN = 2, FUN = function(x){sum(x<0.05)})/nrow(mincer_p_vals) 
-  )
-)
-colnames(mincer_p_vals_summary) = c("Mean", "StdDev", "% p-vals <0.05")
-rownames(mincer_p_vals_summary) = rownames(mincer[[1]])
+outputcolnames = c("AR(1)-RV", "AR(1)-RV", "HAR", "HAR", "HAR-AS", "HAR-AS", "HAR-RSV", "HAR-RSV", 
+                   "HAR-RSRK", "HAR-RSRK", "RGARCH", "RGARCH", "GARCH", "GARCH")
 
-print(
-  xtable(
-    mincer_p_vals_summary, 
-    caption = c("This table shows the means and stddevs of Mincer-Zarnowitz p-values, as well as the ratio of cases in which the t-value is lower than 0.05 (i. e. the ratio of biased tests). ", 
-                  "Mincer-Zarnowitz p-values"), 
-    label = "Table:MZpvals", 
-    digits = 5 
-  ), 
-  file = "Outputs/MZpvals.tex" 
-)
+colnames(mincer_p_vals) = rownames(mincer[[1]])
+mincer_p_vals_e = mincer_p_vals[, seq(from = 1, to = 14, by= 2)]
+mincer_p_vals_r = mincer_p_vals[, seq(from = 2, to = 14, by= 2)]
+
+pdf(file = "Plots/MZreg.pdf", width = 16, height = 12)
+
+par(mfrow = c(1,2))
+boxplot(mincer_p_vals_e, outline = FALSE, xaxt = 'n', main = "MZ regression p-value of expanding forecasts", cex.main = 1.6)
+abline(h = 0.05, col = "red", lwd = 2, lty = 2) 
+axis(1, at=1:7, labels=FALSE, xaxt ='n')
+text(x=1:7, y=par("usr")[3] , labels=outputcolnames[seq(from = 1, to = 14, by = 2)], srt=90, adj=1, xpd=TRUE, cex=1.1)
+
+boxplot(mincer_p_vals_r, outline = FALSE, xaxt = 'n', main = "MZ regression p-value of rolling forecasts", cex.main = 1.6)
+abline(h = 0.05, col = "red", lwd = 2, lty = 2) 
+axis(1, at=1:7, labels=FALSE, xaxt ='n')
+text(x=1:7, y=par("usr")[3] , labels=outputcolnames[seq(from = 2, to = 14, by = 2)], srt=90, adj=1, xpd=TRUE, cex=1.1)
+par(mfrow = c(1,1))
+
+dev.off()
 
 
 
 ####################################
 ### Diebold-Mariano test results ### 
 ####################################
+
+pdf(file = "Plots/DMpval.pdf", width = 16, height = 12) 
+
+par(mfrow = c(1,7))
+
+for(i1 in seq(from = 1, to =7)){
+  modelselection = seq(from = 1, to = 7)[-i1] 
+#  print(modelselection)
+  DM_box_data_e = data.frame(matrix(rep(NA, times = 7*nrow(stocks)),
+                                  ncol = nrow(stocks))) 
+  for(i2 in modelselection){
+    DM_box_data_e[i2,] = unlist(DMresults_e[[i1]][[i2]])
+  }
+  rownames(DM_box_data_e) = modelnames 
+  par(bty = 'n')
+  boxplot(t(DM_box_data_e)[,modelselection], ylim = c(0,1), 
+          main = modelnames[i1], xaxt = 'n', cex.main = 2, yaxt = 'n', bty = 'n') 
+  abline(h = 0.05, col = "red", lwd = 4, lty = 2) 
+  axis(1, at=1:6, labels=FALSE, xaxt ='n')
+  axis(2, at=seq(from = 0, to = 1, by = 0.05), labels=seq(from = 0, to = 1, by = 0.05), xaxt ='n')
+  # indent = 10^(round(log(mean(plotvar), base = 10))-2)*5  
+  text(x=1:6, y=par("usr")[3]+0.025 , labels=modelnames[modelselection], srt=90, adj=1, xpd=TRUE, cex=1.5)
+}
+
+dev.off() 
+
+
+
 
 print(
   xtable(
@@ -300,104 +302,87 @@ print(
 
 
 
-#############################################
-### VaR hit ratio and backtesting results ###
-#############################################
+############################################
+### VaR hit rate and backtesting results ###
+############################################
 
 VaRresults = list() 
 Backtests = list() 
 
-MeanVarValues_2 = data.frame(matrix(rep(NA, times = 14), ncol = 1))
+VaRresults_output_1 = VaR(0.1)
+VaRresults_output_2 = VaR(0.05)
+VaRresults_output_3 = VaR(0.01)
 
-for(VaRalpha in c(0.1, 0.05, 0.01)){
-  VaRresults_output = VaR(VaRalpha)
+VarResults = list(VaRresults_output_1, VaRresults_output_2, VaRresults_output_3)
+
+printbacktesting <- function(VaRresults, scheme, filename){
+  siglevels = c(0.1, 0.05, 0.01)
   
-  meanVaRvalues = data.frame(matrix(rep(NA, times = 4*14), ncol = 4))
+  outputcolnames = c("AR(1)-RV", "AR(1)-RV", "HAR", "HAR", "HAR-AS", "HAR-AS", "HAR-RSV", "HAR-RSV", 
+                     "HAR-RSRK", "HAR-RSRK", "RGARCH", "RGARCH", "GARCH", "GARCH")
   
-  for(model in seq(from = 1, to = 14, by = 1)){
-    for(col in seq(from = 2, to = 5, step = 1)){
+  counter = 1 
+  pdf(file = filename, width = 16, height = 12)
+  par(mfrow =c(3,4))
+  
+  for(VaRresults_output in VarResults){
+    # VaRresults_output = VaR(VaRalpha)
+    
+    for(measure in seq(from = 2, to = 5, by = 1)){
+      output_e = data.frame(matrix(rep(NA, times =  7*nrow(stocks)), ncol = 7)) 
+      output_r = data.frame(matrix(rep(NA, times =  7*nrow(stocks)), ncol = 7)) 
       
-      meanVaRvalues[model, col-1] = 
-        mean(unlist(lapply(VaRresults_output, FUN = function(x){
-          lapply(x[col],  FUN = function(y){y[model]})
-        })))
+      colnames(output_e) = outputcolnames[seq(from = 1, to = 14, by =2)]
+      colnames(output_r) = outputcolnames[seq(from = 2, to = 14, by =2)]
+      rownames(output_e) = stocks$stockname
+      rownames(output_r) = stocks$stockname
+      
+      for(i in seq(from = 1, to = 14, by =2)){ 
+        output_e[,(i+1)/2]  = 
+          unlist(
+            lapply(
+              VaRresults_output, FUN = function(x){x[i, measure]}
+            )
+          )
+      }
+      
+      for(i in seq(from = 2, to = 14, by =2)){ 
+        output_r[,i/2]= 
+          unlist(
+            lapply(
+              VaRresults_output, FUN = function(x){x[i, measure]}
+            )
+          )
+      }
+      
+      if(scheme == "expanding"){
+        plotoutput = output_e 
+      } else if (scheme == "rolling"){
+        plotoutput = output_r 
+      }
+      
+      if(counter * measure == 15){
+        boxplot(plotoutput, outline  = FALSE, main = colnames(VaRresults_output[[1]])[measure], cex.main = 2, xaxt = 'n', ylim = c(0, 0.012))
+      }
+      else{
+        boxplot(plotoutput, outline  = FALSE, main = colnames(VaRresults_output[[1]])[measure], cex.main = 2, xaxt = 'n')
+      }
+      axis(1, at=1:7, labels=FALSE, xaxt ='n')
+      text(x=1:7, y=par("usr")[3] , labels=colnames(plotoutput), srt=90, adj=1, xpd=TRUE, cex=1.2)
+      
+      if(measure == 5){
+        abline(h = siglevels[counter], col = "green", lty = 2, lwd = 2)
+      }
+      else{
+        abline(h = 0.05, col = "red", lty = 2, lwd = 2)
+      }
     }
+    counter = counter + 1 
   }
   
-
-  lapply(
-    VaRresults_output, FUN = function(x){
-    lapply(x[col],  FUN = function(y){y[model]})
-  })
-  
-  lapply(VaRresults_output[["XOM"]][col],  FUN = function(y){y[model]})
-  
-  
-  
-  colnames(meanVaRvalues) = colnames(VaRresults_output[[1]])[2:5] 
-  rownames(meanVaRvalues) = c("AR(1)-RV expanding", "AR(1)-RV rolling", "HAR expanding", "HAR rolling", 
-                              "HAR-AS expanding", "HAR-AS rolling", "HAR-RSV expanding", "HAR-RSV rolling", 
-                              "HAR-RSRK expanding", "HAR-RSRK rolling", "RGARCH expanding", "RGARCH rolling", 
-                              "GARCH expanding", "GARCH rolling")
-    
-  MeanVarValues_2 = cbind(MeanVarValues_2, meanVaRvalues)  
+  par(mfrow =c(1,1))
+  dev.off() 
 }
 
-MeanVarValues_2 = MeanVarValues_2[-1]
-
-varorders = round(apply(MeanVarValues_2, MARGIN = 2, FUN = rank)) 
-
-varmeans_text = apply(MeanVarValues_2, MARGIN = 2, FUN = function(x){sprintf("%.5f", x)} )
-
-varorders_text = t(apply(varorders, MARGIN = 1, FUN = as.character)) 
-
-var_means_order_text = matrix(paste(matrix(varmeans_text), " (", varorders_text, ")", sep = ""), nrow = nrow(varmeans_text)) 
-
-colnames(var_means_order_text) = colnames(varorders)
-rownames(var_means_order_text) = rownames(varorders)
-
-
-print(
-  xtable(
-    var_means_order_text[,c(1,5,9)], 
-    caption = c("This table shows the means of Kupiec's test p-values for each model and forecasting window for each respective VaR level. In parentheses is the rank of the value across all models. ", 
-                "Kupiec's test means"), 
-    label = "Table:VaR_means_Kupiec", 
-    digits = 5 
-  ), 
-  file = "Outputs/VaR_means_Kupiec.tex" 
-)
-
-print(
-  xtable(
-    var_means_order_text[,c(2,6,10)], 
-    caption = c("This table shows the means of Christoffersen's test p-values for each model and forecasting window for each respective VaR level. In parentheses is the rank of the value across all models. ", 
-                "Christoffersen's test means"), 
-    label = "Table:VaR_means_Christoffersen", 
-    digits = 5 
-  ), 
-  file = "Outputs/VaR_means_Christoffersen.tex" 
-)
-
-print(
-  xtable(
-    var_means_order_text[,c(3,7,11)], 
-    caption = c("This table shows the means of Dynamic quantile test p-values for each model and forecasting window for each respective VaR level. In parentheses is the rank of the value across all models. ", 
-                "DQ test means"), 
-    label = "Table:VaR_means_DQ", 
-    digits = 5 
-  ), 
-  file = "Outputs/VaR_means_DQ.tex" 
-)
-
-print(
-  xtable(
-    var_means_order_text[,c(4,8,12)], 
-    caption = c("This table shows the means of hit rate for each model and forecasting window for each respective VaR level. In parentheses is the rank of the value across all models. ", 
-                "Hit ratio means"), 
-    label = "Table:VaR_means_HitRate", 
-    digits = 5 
-  ), 
-  file = "Outputs/VaR_means_HitRate.tex" 
-)
-
+printbacktesting(VaRresults = VaRresults, scheme = "rolling", filename = "Plots/Backtesting_r.pdf")
+printbacktesting(VaRresults = VaRresults, scheme = "expanding", filename = "Plots/Backtesting_e.pdf")

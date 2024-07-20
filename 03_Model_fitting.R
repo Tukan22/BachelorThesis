@@ -6,6 +6,8 @@ HARSK_fit = list()
 RGARCH_fit = list()
 ARMAGARCH_fit = list() 
 
+ARMA_fit = list() 
+
 RGARCH = list() 
 
 HARmeasures = list() 
@@ -50,6 +52,9 @@ for(stockn in stocks$stockname){
   RGARCH_fit[[stockn]] <- ugarchfit(spec = RGARCH, data = allstocks[[stockn]]$ret, realizedVol= allstocks[[stockn]]$RV, solver ='hybrid')
   
   counter = counter + 1   
+  
+  ARMA_fit[[stockn]] = arima(allstocks[[stockn]]$ret, order = c(1, 0, 1))
 }
 end_time = Sys.time()
 print(end_time-start_time) 
+

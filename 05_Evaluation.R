@@ -181,15 +181,49 @@ DM_output <- function(funcode){
 
 
 
+################################
+### Diebold-Mariano test new ###
+################################
 
-# DM-tests
-# print("Expanding DM-test")
-# print(round(Diebold_e[[stockn]],3))
-# xtable(round(Diebold_e[[stockn]],3))
+Exp_fc_list <- list(AR1_RV_fc_e, HAR_fc_e, HAR_AS_fc_e, HAR_RS_fc_e, HAR_RSRK_fc_e, RGARCH_fc_e, ARMAGARCH_fc_e)
+Rol_fc_list <- list(AR1_RV_fc_r, HAR_fc_r, HAR_AS_fc_r, HAR_RS_fc_r, HAR_RSRK_fc_r, RGARCH_fc_r, ARMAGARCH_fc_r)
 
-# print("Rolling DM-test")
-# print(round(Diebold_r[[stockn]],3))
-# xtable(round(Diebold_r[[stockn]],3))
+DMresults_e = list()
+DMresults_r = list() 
+
+for(i1 in seq(from = 1, to =  7)){
+  DMresults_e[[i1]] = list()
+  DMresults_r[[i1]] = list()
+  for(i2 in seq(from =  1, to = 7)){
+    DMresults_e[[i1]][[i2]] = list()
+    DMresults_r[[i1]][[i2]] = list() 
+    if(i1 != i2){
+      for(stockn in stocks$stockname){
+        DMresults_e[[i1]][[i2]][[stockn]] = dm.test(true_vals[[stockn]]-Exp_fc_list[[i1]][[stockn]], true_vals[[stockn]]-Exp_fc_list[[i2]][[stockn]], alternative = "greater")$p.value
+        DMresults_r[[i1]][[i2]][[stockn]] = dm.test(true_vals[[stockn]]-Rol_fc_list[[i1]][[stockn]], true_vals[[stockn]]-Rol_fc_list[[i2]][[stockn]], alternative = "greater")$p.value  
+      }
+    }
+  }
+}
+
+modelnames = c("AR(1)-RV", "HAR", "HAR-AS", "HAR-RSV", "HAR-RSRK", "RGARCH", "GARCH") 
+
+DM_output_e = data.frame(matrix(rep(NA, times = 49), ncol = 7))    
+DM_output_r = data.frame(matrix(rep(NA, times = 49), ncol = 7))
+
+rownames(DM_output_e) = c("AR(1)-RV", "HAR", "HAR-AS", "HAR-RSV", "HAR-RSRK", "RGARCH", "GARCH")
+colnames(DM_output_e) = c("AR(1)-RV", "HAR", "HAR-AS", "HAR-RSV", "HAR-RSRK", "RGARCH", "GARCH")
+rownames(DM_output_r) = c("AR(1)-RV", "HAR", "HAR-AS", "HAR-RSV", "HAR-RSRK", "RGARCH", "GARCH")
+colnames(DM_output_r) = c("AR(1)-RV", "HAR", "HAR-AS", "HAR-RSV", "HAR-RSRK", "RGARCH", "GARCH")
+
+for(i1 in seq(from = 1, to =  7)){
+  for(i2 in seq(from =  1, to = 7)){
+      if(i1 != i2){
+        DM_output_e[i1,i2] = mean(unlist(DMresults_e[[i1]][[i2]]))
+        DM_output_r[i1,i2] = mean(unlist(DMresults_r[[i1]][[i2]])) 
+      }
+    }
+  }
 
 
 

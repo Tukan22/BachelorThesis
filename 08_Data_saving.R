@@ -11,6 +11,7 @@ save(HARAS_fit, file = "Data/HARAS_fit.Rdata")
 save(HARS_fit, file = "Data/HARS_fit.Rdata") 
 save(HARSK_fit, file = "Data/HARSK_fit.Rdata") 
 save(RGARCH_fit, file = "Data/RGARCH_fit.Rdata") 
+save(ARMA_fit, file = "Data/ARMA_fit.Rdata") 
 
 save(RGARCH, file = "Data/RGARCH.Rdata")
 save(ARMAGARCH, file = "Data/ARMAGARCH.Rdata")
@@ -137,3 +138,7 @@ save(MSE_r, file = "Data/MSE_r")
 save(MAE_e, file = "Data/MAE_e")
 save(MAE_r, file = "Data/MAE_r")
 
+
+save(VarBackestingValues, file = "Data/VarBackestingValues")
+
+save(VarResults, file = "Data/VarResults") 

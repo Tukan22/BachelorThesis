@@ -18,7 +18,7 @@ save(ARMAGARCH, file = "Data/ARMAGARCH.Rdata")
 
 save(pre_covid_end_date, file = "Data/pre_covid_end_date.Rdata")
 save(forecast_start_date, file = "Data/forecast_start_date.Rdata")
-save(minimum_length, file = "Data/minimum_length.Rdata")y
+save(minimum_length, file = "Data/minimum_length.Rdata")
 save(n_for, file = "Data/n_for.Rdata")
 save(max_possible_date_diff, file = "Data/max_possible_date_diff.Rdata")
 
@@ -129,7 +129,7 @@ save(Backtests_ARMAGARCH_r, file = "Data/Backtests_ARMAGARCH_r.Rdata")
 
 save(wald_test, file = "Data/wald_test.Rdata")
 
-save(VaRresults, file = "Data/Varresults")
+# save(VaRresults, file = "Data/Varresults")
 
 save(MeanVarValues_2, file = "Data/MeanVarValues_2")
 

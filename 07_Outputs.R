@@ -23,45 +23,47 @@ dev.off()
 ### Jarque-Bera test p-values on residuals ###
 ##############################################
 
-JBpvals_out = 
-  as.data.frame(
-    stocks[,c(
-      which(names(stocks)=="JBpval_AR1_RV_resid"),
-      which(names(stocks)=="JBpval_HAR_resid"),
-      which(names(stocks)=="JBpval_HAR_AS_resid"),
-      which(names(stocks)=="JBpval_HAR_RS_resid"),
-      which(names(stocks)=="JBpval_HAR_RSRK_resid"),
-      which(names(stocks)=="JBpval_RGARCH_resid"),
-      which(names(stocks)=="JBpval_ARMAGARCH_resid")
-    )],
-    row.names = stocks$stockname
-  )
+# This does not make sense - I don't care about normality of residuals from the variance models 
 
-colnames(JBpvals_out) = c("AR1-RV", "HAR", "HAR-AS", "HAR-RS", "HAR-RSRK", "RGARCH", "GARCH") 
+# JBpvals_out = 
+#   as.data.frame(
+# stocks[,c(
+# which(names(stocks)=="JBpval_AR1_RV_resid"),
+# which(names(stocks)=="JBpval_HAR_resid"),
+# which(names(stocks)=="JBpval_HAR_AS_resid"),
+# which(names(stocks)=="JBpval_HAR_RS_resid"),
+# which(names(stocks)=="JBpval_HAR_RSRK_resid"),
+# which(names(stocks)=="JBpval_RGARCH_resid"),
+# which(names(stocks)=="JBpval_ARMAGARCH_resid")
+# )],
+# row.names = stocks$stockname
+#   )
 
-print(
-  xtable(cbind(
-    JBpvals_out[seq(from = 1, to = nrow(JBpvals_out)/2),] 
-  ),
-  caption = c("This table shows the p-values of the Jarque-Bera test of normality for residuals 
-              of all 7 models for the first half of stocks.", 
-              "p-values of Jarque-Bera test on model residuals (1)"), 
-  label = "Table:JBresid_p_vals_1"
-  ),
-  file = "Outputs/JBresid_p_vals_1.tex"
-)
+# colnames(JBpvals_out) = c("AR1-RV", "HAR", "HAR-AS", "HAR-RS", "HAR-RSRK", "RGARCH", "GARCH") 
 
-print(
-  xtable(cbind(
-    JBpvals_out[seq(from = nrow(JBpvals_out)/2+1, to = nrow(JBpvals_out)),]
-  ),
-  caption = c("This table shows the p-values of the Jarque-Bera test of normality for residuals 
-              of all 7 models for the second half of stocks.", 
-              "p-values of Jarque-Bera test on model residuals (2)"), 
-  label = "Table:JBresid_p_vals_2"
-  ),
-  file = "Outputs/JBresid_p_vals_2.tex"
-)
+# print(
+#   xtable(cbind(
+# JBpvals_out[seq(from = 1, to = nrow(JBpvals_out)/2),] 
+#   ),
+#   caption = c("This table shows the p-values of the Jarque-Bera test of normality for residuals 
+# of all 7 models for the first half of stocks.", 
+# "p-values of Jarque-Bera test on model residuals (1)"), 
+#   label = "Table:JBresid_p_vals_1"
+#   ),
+#   file = "Outputs/JBresid_p_vals_1.tex"
+# )
+
+# print(
+#   xtable(cbind(
+# JBpvals_out[seq(from = nrow(JBpvals_out)/2+1, to = nrow(JBpvals_out)),]
+#   ),
+#   caption = c("This table shows the p-values of the Jarque-Bera test of normality for residuals 
+# of all 7 models for the second half of stocks.", 
+# "p-values of Jarque-Bera test on model residuals (2)"), 
+#   label = "Table:JBresid_p_vals_2"
+#   ),
+#   file = "Outputs/JBresid_p_vals_2.tex"
+# )
 
 
 
@@ -69,22 +71,22 @@ print(
 ### Ljung-Box test on returns ##
 ################################
 
-pdf(file = "Plots/LBpstat.pdf", width = 16, height = 12) 
+# pdf(file = "Plots/LBpstat.pdf", width = 16, height = 12) 
 
-plot(stocks$LBp_val, type="o", col="blue", xaxt="n", xlab="Stock", ylab="p-value", main="Ljung-Box test p-statistic", 
-     ylim = c(0 ,max(stocks$LBp_val)*1.1))
-abline(h = 0.05, col = "red", lwd = 2, lty = 2)
+# plot(stocks$LBp_val, type="o", col="blue", xaxt="n", xlab="Stock", ylab="p-value", main="Ljung-Box test p-statistic", 
+#      ylim = c(0 ,max(stocks$LBp_val)*1.1))
+# abline(h = 0.05, col = "red", lwd = 2, lty = 2)
 
-# Add the custom x-axis labels, rotate them 90 degrees, and make them smaller
-axis(1, at=1:length(stocks$LBp_val), labels=FALSE, xaxt ='n')
-# indent = 10^(round(log(mean(plotvar), base = 10))-2)*5  
-text(x=1:nrow(stocks), y=par("usr")[3] , labels=rownames(MSE_e_output), srt=90, adj=1, xpd=TRUE, cex=1)
+# # Add the custom x-axis labels, rotate them 90 degrees, and make them smaller
+# axis(1, at=1:length(stocks$LBp_val), labels=FALSE, xaxt ='n')
+# # indent = 10^(round(log(mean(plotvar), base = 10))-2)*5  
+# text(x=1:nrow(stocks), y=par("usr")[3] , labels=rownames(MSE_e_output), srt=90, adj=1, xpd=TRUE, cex=1)
 
-# Add a grid for better readability
-grid(nx = nrow(stocks) + 5)
-legend("topleft", legend = c("Ljung-Box p-stat","0.05"), col = c("blue","red"), lty = c(1,2), lwd = 1)
+# # Add a grid for better readability
+# grid(nx = nrow(stocks) + 5)
+# legend("topleft", legend = c("Ljung-Box p-stat","0.05"), col = c("blue","red"), lty = c(1,2), lwd = 1)
 
-dev.off() 
+# dev.off() 
 
 
 
@@ -166,6 +168,7 @@ colnames(MAE_r_output) = c("AR(1)-RV", "HAR", "HAR-AS", "HAR-RSV", "HAR-RSRK", "
 
 erroroutputs = list(MSE_e_output, MSE_r_output, MAE_e_output, MAE_r_output)
 
+titles = c("MSE expanding window", "MSE rolling window", "MAE expanding window", "MAE rolling window")
 
 pdf(file = "Plots/Errors.pdf", width = 16, height = 12) 
 
@@ -223,7 +226,6 @@ text(x=1:7, y=par("usr")[3] , labels=outputcolnames[seq(from = 2, to = 14, by = 
 par(mfrow = c(1,1))
 
 dev.off()
-
 
 
 ####################################

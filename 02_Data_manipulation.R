@@ -8,25 +8,27 @@ pre_covid_end_date = as.Date("2019-02-13")
 
 ### Run Jarque-Bera test for both returns and model residuals and save p-values 
 
-stocks$JBpval_AR1_RV_resid = rep(NA, times = nrow(stocks))
-stocks$JBpval_HAR_resid = rep(NA, times = nrow(stocks))
-stocks$JBpval_HAR_AS_resid = rep(NA, times = nrow(stocks))
-stocks$JBpval_HAR_RS_resid = rep(NA, times = nrow(stocks))
-stocks$JBpval_HAR_RSRK_resid = rep(NA, times = nrow(stocks))
-stocks$JBpval_RGARCH_resid =rep(NA, times = nrow(stocks))
-stocks$JBpval_ARMAGARCH_resid =rep(NA, times = nrow(stocks))  
+# This does not make sense - I don't care about normality of residuals from the variance models 
+
+# stocks$JBpval_AR1_RV_resid = rep(NA, times = nrow(stocks))
+# stocks$JBpval_HAR_resid = rep(NA, times = nrow(stocks))
+# stocks$JBpval_HAR_AS_resid = rep(NA, times = nrow(stocks))
+# stocks$JBpval_HAR_RS_resid = rep(NA, times = nrow(stocks))
+# stocks$JBpval_HAR_RSRK_resid = rep(NA, times = nrow(stocks))
+# stocks$JBpval_RGARCH_resid =rep(NA, times = nrow(stocks))
+# stocks$JBpval_ARMAGARCH_resid =rep(NA, times = nrow(stocks))  
 
 stocks$JBpval_rets = rep(NA, times = nrow(stocks))
 
 
 for(stockn in stocks$stockname){
-  stocks[which(stocks$stockname ==stockn),"JBpval_AR1_RV_resid"]= jarque.bera.test(AR1_RV_fit[[stockn]]$residuals)$p.val
-  stocks[which(stocks$stockname ==stockn),"JBpval_HAR_resid"]= jarque.bera.test(HAR_fit[[stockn]]$residuals)$p.val
-  stocks[which(stocks$stockname ==stockn),"JBpval_HAR_AS_resid"]= jarque.bera.test(HARAS_fit[[stockn]]$residuals)$p.val
-  stocks[which(stocks$stockname ==stockn),"JBpval_HAR_RS_resid"]= jarque.bera.test(HARS_fit[[stockn]]$residuals)$p.val
-  stocks[which(stocks$stockname ==stockn),"JBpval_HAR_RSRK_resid"]= jarque.bera.test(HARSK_fit[[stockn]]$residuals)$p.val
-  stocks[which(stocks$stockname ==stockn),"JBpval_ARMAGARCH_resid"] = jarque.bera.test(ARMAGARCH_fit[[stockn]]@fit$residuals)$p.val 
-  stocks[which(stocks$stockname ==stockn),"JBpval_RGARCH_resid"] = jarque.bera.test(RGARCH_fit[[stockn]]@fit$residuals)$p.val 
+  # stocks[which(stocks$stockname ==stockn),"JBpval_AR1_RV_resid"]= jarque.bera.test(AR1_RV_fit[[stockn]]$residuals)$p.val
+  # stocks[which(stocks$stockname ==stockn),"JBpval_HAR_resid"]= jarque.bera.test(HAR_fit[[stockn]]$residuals)$p.val
+  # stocks[which(stocks$stockname ==stockn),"JBpval_HAR_AS_resid"]= jarque.bera.test(HARAS_fit[[stockn]]$residuals)$p.val
+  # stocks[which(stocks$stockname ==stockn),"JBpval_HAR_RS_resid"]= jarque.bera.test(HARS_fit[[stockn]]$residuals)$p.val
+  # stocks[which(stocks$stockname ==stockn),"JBpval_HAR_RSRK_resid"]= jarque.bera.test(HARSK_fit[[stockn]]$residuals)$p.val
+  # stocks[which(stocks$stockname ==stockn),"JBpval_ARMAGARCH_resid"] = jarque.bera.test(ARMAGARCH_fit[[stockn]]@fit$residuals)$p.val 
+  # stocks[which(stocks$stockname ==stockn),"JBpval_RGARCH_resid"] = jarque.bera.test(RGARCH_fit[[stockn]]@fit$residuals)$p.val 
   
   stocks[which(stocks$stockname ==stockn),"JBpval_rets"] = jarque.bera.test(allstocks[[stockn]]$ret)$p.val 
 }

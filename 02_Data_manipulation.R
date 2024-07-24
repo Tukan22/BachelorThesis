@@ -1,7 +1,10 @@
 n_for = 252 
 pre_covid_end_date = as.Date("2020-02-03") - n_for - 3   
 
-# allstocks[["AAPL"]][stocks$w_l[which(stocks$stockname == "AAPL")]]
+
+pre_covid_end_date = as.Date("2019-02-13")
+
+
 
 ### Run Jarque-Bera test for both returns and model residuals and save p-values 
 
@@ -86,7 +89,6 @@ if(length(stocks_to_remove)==0 ) {stocks_to_remove = -seq(from = 1, to = nrow(st
 allstocks = allstocks[-stocks_to_remove]
 stocks = stocks[-stocks_to_remove,]
 
-
 # Eliminate stocks which have a long break in the middle 
 
 stocks$max_date_diff = rep(NA, times = nrow(stocks))
@@ -104,7 +106,7 @@ allstocks = allstocks[-stocks_to_remove]
 stocks = stocks[-stocks_to_remove,]
 
 
-# Compute width of forecasting window - from the beginning to start of covid 
+# Compute width of training set - from the beginning to start of covid 
 
 stocks$w_l = rep(NA, times = nrow(stocks))
 stocks$n_for = rep(NA, times = nrow(stocks)) 

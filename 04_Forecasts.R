@@ -1,5 +1,4 @@
 
-
 ##########################
 ######### AR1_RV #########
 ##########################
@@ -113,6 +112,8 @@ print(end_time-start_time)
 ######### HAR-AS #########
 ##########################
 
+start_time = Sys.time()
+
 HAR_AS_fc_r = list() 
 HAR_AS_fc_e = list() 
 
@@ -121,7 +122,8 @@ HAR_AS_fc_e = list()
 counter = 1 
 
 for(stockn in stocks$stockname){
-  print(counter)
+  print(paste(counter, ": ", stockn, sep = ""))
+  print("   Rolling")
   
   n_for = stocks[which(stocks$stockname == stockn),"n_for"] 
   w_l = stocks[which(stocks$stockname == stockn),"w_l"]
@@ -135,6 +137,8 @@ for(stockn in stocks$stockname){
   }
   
   HAR_AS_fc_r[[stockn]]<-xts(HAR_AS_fc_r[[stockn]],order.by = index(allstocks[[stockn]]$ret[(w_l+1):(w_l+n_for)]))
+
+  print("   Expanding")
   
   HAR_AS_fc_e[[stockn]] <- rep(NA, n_for)
   for (i in 0:(n_for - 1)) {
@@ -161,11 +165,14 @@ HAR_AS_fc_e = lapply(HAR_AS_fc_e, sqrt)
 save(HAR_AS_fc_r, file = "Data/HAR_AS_fc_r.Rdata")  
 save(HAR_AS_fc_e, file = "Data/HAR_AS_fc_e.Rdata")  
 
-
+end_time = Sys.time()
+print(end_time-start_time)
 
 ##########################
 ######### HAR-RS #########
 ##########################
+
+start_time = Sys.time()
 
 HAR_RS_fc_r = list() 
 HAR_RS_fc_e = list() 
@@ -175,7 +182,8 @@ HAR_RS_fc_e = list()
 counter = 1 
 
 for(stockn in stocks$stockname){
-  print(counter)
+  print(paste(counter, ": ", stockn, sep = ""))
+  print("   Rolling")
   
   n_for = stocks[which(stocks$stockname == stockn),"n_for"] 
   w_l = stocks[which(stocks$stockname == stockn),"w_l"]
@@ -189,6 +197,8 @@ for(stockn in stocks$stockname){
   }
   
   HAR_RS_fc_r[[stockn]]<-xts(HAR_RS_fc_r[[stockn]],order.by = index(allstocks[[stockn]]$ret[(w_l+1):(w_l+n_for)]))
+
+  print("   Expanding")
   
   HAR_RS_fc_e[[stockn]] <- rep(NA, n_for)
   for (i in 0:(n_for - 1)) {
@@ -214,6 +224,9 @@ HAR_RS_fc_e = lapply(HAR_RS_fc_e, sqrt)
 save(HAR_RS_fc_r, file = "Data/HAR_RS_fc_r.Rdata")  
 save(HAR_RS_fc_e, file = "Data/HAR_RS_fc_e.Rdata")  
 
+end_time = Sys.time()
+print(end_time-start_time)
+
 
 
 ############################
@@ -228,7 +241,8 @@ HAR_RSRK_fc_e  = list()
 counter = 1 
 
 for(stockn in stocks$stockname){
-  print(counter)
+  print(paste(counter, ": ", stockn, sep = ""))
+  print("   Rolling")
   
   n_for = stocks[which(stocks$stockname == stockn),"n_for"] 
   w_l = stocks[which(stocks$stockname == stockn),"w_l"]
@@ -243,7 +257,9 @@ for(stockn in stocks$stockname){
   
   HAR_RSRK_fc_r[[stockn]] <- xts(HAR_RSRK_fc_r[[stockn]],order.by = index(allstocks[[stockn]]$ret[(w_l+1):(w_l+n_for)]))
   
-  HAR_RSRK_fc_e[[stockn]] <- rep(NA, n_for)
+  print("   Expanding")
+
+    HAR_RSRK_fc_e[[stockn]] <- rep(NA, n_for)
   for (i in 0:(n_for - 1)) {
     temp <- HAR_DATA[[stockn]][1:(w_l + i - 22), ] %>% ts()
     fc_data <- HAR_DATA[[stockn]][w_l + i + 1 - 22, -1]
@@ -280,7 +296,6 @@ save(HAR_RSRK_fc_e, file = "Data/HAR_RSRK_fc_e.Rdata")
 ARMAGARCH_fc_r = list()  
 ARMAGARCH_fc_e = list()  
 
-# Done with correct data 
 # Runs approximately 44 minutes
 
 start_time = Sys.time()
@@ -299,21 +314,21 @@ for(stockn in stocks$stockname){
   
   # ARMA-GARCH  
   # rolling
-  ARMAGARCH_fc_r[[stockn]] <- ugarchroll(ARMAGARCH, 100*allstocks[[stockn]]$ret[1:(w_l+n_for+1),], n.ahead = 1, forecast.length = n_for, 
+  ARMAGARCH_fc_r[[stockn]] <- ugarchroll(ARMAGARCH, 100*allstocks[[stockn]]$ret[1:(w_l+1),], n.ahead = 1, forecast.length = n_for, 
                                          n.start = NULL, refit.every = 21, refit.window = c("moving"), 
                                          window.size = w_l, solver = "hybrid", fit.control = list(), 
                                          solver.control = list(), calculate.VaR = FALSE, 
-                                         keep.coef = TRUE,realizedVol = 100*(allstocks[[stockn]]$RV[1:(w_l+n_for+1),]))   # TODO: why is RV here? 
+                                         keep.coef = TRUE)   # TODO: why is RV here? 
   ARMAGARCH_fc_r[[stockn]] <- xts(ARMAGARCH_fc_r[[stockn]]@forecast[["density"]]$Sigma,
                                   order.by = as.Date(rownames(ARMAGARCH_fc_r[[stockn]]@forecast[["density"]])))/100
   
   # expanding
   print("   Expanding") 
-  ARMAGARCH_fc_e[[stockn]] <- ugarchroll(ARMAGARCH, 100*allstocks[[stockn]]$ret[1:(w_l+n_for+1),], n.ahead = 1, forecast.length = n_for, 
+  ARMAGARCH_fc_e[[stockn]] <- ugarchroll(ARMAGARCH, 100*allstocks[[stockn]]$ret[1:(w_l+1),], n.ahead = 1, forecast.length = n_for, 
                                         n.start = NULL, refit.every = 21, refit.window = c("recursive"), 
                                         window.size = w_l, solver = "hybrid", fit.control = list(), 
                                         solver.control = list(), calculate.VaR = FALSE, 
-                                        keep.coef = TRUE,realizedVol = 100*(allstocks[[stockn]]$RV[1:(w_l+n_for+1),]))    # TODO: why is RV here? 
+                                        keep.coef = TRUE)    # TODO: why is RV here? 
   ARMAGARCH_fc_e[[stockn]]<- xts(ARMAGARCH_fc_e[[stockn]]@forecast[["density"]]$Sigma,
                       order.by = as.Date(rownames(ARMAGARCH_fc_e[[stockn]]@forecast[["density"]])))/100
 
@@ -352,18 +367,18 @@ for(stockn in stocks$stockname){
   
   # RGARCH  
   # rolling
-  RGARCH_fc_r[[stockn]] <- ugarchroll(RGARCH, 100*allstocks[[stockn]]$ret[1:(w_l+n_for+1),], n.ahead = 1, forecast.length = n_for, 
+  RGARCH_fc_r[[stockn]] <- ugarchroll(RGARCH, 100*allstocks[[stockn]]$ret[1:(w_l+1),], n.ahead = 1, forecast.length = n_for, 
                                       n.start = NULL, refit.every = 21, refit.window = c("moving"), window.size = w_l,
-                                      solver = "hybrid", calculate.VaR = FALSE,keep.coef = TRUE,realizedVol = (100*sqrt(allstocks[[stockn]]$RV[1:(w_l+n_for+1),])))
+                                      solver = "hybrid", calculate.VaR = FALSE,keep.coef = TRUE,realizedVol = (100*sqrt(allstocks[[stockn]]$RV[1:(w_l+1),])))
   RGARCH_fc_r[[stockn]] <- xts(RGARCH_fc_r[[stockn]]@forecast[["density"]]$Sigma,
                                order.by = as.Date(rownames(RGARCH_fc_r[[stockn]]@forecast[["density"]])))/100
   
   # expanding
   print("   Expanding")
-  RGARCH_fc_e[[stockn]] <- ugarchroll(RGARCH, 100*allstocks[[stockn]]$ret[1:(w_l+n_for+1),], n.ahead = 1, forecast.length = n_for, 
+  RGARCH_fc_e[[stockn]] <- ugarchroll(RGARCH, 100*allstocks[[stockn]]$ret[1:(w_l+1),], n.ahead = 1, forecast.length = n_for, 
                                       n.start = NULL, refit.every = 21, refit.window = c("recursive"), 
                                       window.size = w_l, solver = "hybrid", calculate.VaR = FALSE, 
-                                      keep.coef = TRUE,realizedVol = 100*sqrt((allstocks[[stockn]]$RV[1:(w_l+n_for+1),])))
+                                      keep.coef = TRUE,realizedVol = 100*sqrt((allstocks[[stockn]]$RV[1:(w_l+1),])))
   RGARCH_fc_e[[stockn]]<- xts(RGARCH_fc_e[[stockn]]@forecast[["density"]]$Sigma,
                               order.by = as.Date(rownames(RGARCH_fc_e[[stockn]]@forecast[["density"]])))/100
 

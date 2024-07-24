@@ -41,7 +41,7 @@ for(stockn in stocks$stockname){
   
   AR1_RV_fit[[stockn]] <- arima(allstocks[[stockn]]$RV, order = c(1, 0, 0))
   HAR_fit[[stockn]] <- lm(HARmeasures[[stockn]]$RV_0 ~ HARmeasures[[stockn]]$RV_1 + HARmeasures[[stockn]]$RV_5+ HARmeasures[[stockn]]$RV_22)
-  HARAS_fit[[stockn]]<-lm(HARmeasures[[stockn]]$RV_0 ~ HARmeasures[[stockn]]$RV_p + HARmeasures[[stockn]]$RV_n + HARmeasures[[stockn]]$RV_5+ HARmeasures[[stockn]]$RV_22)
+  HARAS_fit[[stockn]]<-lm(HARmeasures[g[stockn]]$RV_0 ~ HARmeasures[[stockn]]$RV_p + HARmeasures[[stockn]]$RV_n + HARmeasures[[stockn]]$RV_5+ HARmeasures[[stockn]]$RV_22)
   HARS_fit[[stockn]] <-lm(HARmeasures[[stockn]]$RV_0 ~ HARmeasures[[stockn]]$RS + HARmeasures[[stockn]]$RV_1 + HARmeasures[[stockn]]$RV_5 + HARmeasures[[stockn]]$RV_22)
   HARSK_fit[[stockn]] <-lm(HARmeasures[[stockn]]$RV_0 ~ HARmeasures[[stockn]]$RS + HARmeasures[[stockn]]$RK + HARmeasures[[stockn]]$RV_1 + HARmeasures[[stockn]]$RV_5 + HARmeasures[[stockn]]$RV_22)
   ARMAGARCH <- ugarchspec(mean.model = list(armaOrder = c(1, 1), include.mean=TRUE), # TODO ARMA order 

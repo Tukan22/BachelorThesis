@@ -1,6 +1,6 @@
 library(xts)
 
-# setwd("F:/IES/BachelorThesis/Folder/BachelorThesis/ToSend")
+setwd("F:/IES/BachelorThesis/Folder/BachelorThesis/ToSend")
 
 load("allstocks.RData")
 load("stocks.RData")
@@ -26,3 +26,7 @@ for(stockn in stocks$stockname){
 }
 
 dev.off() 
+
+
+
+tail(ARMAGARCH_fc_e[["AAPL"]]) 

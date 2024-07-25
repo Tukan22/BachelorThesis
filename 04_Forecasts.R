@@ -130,6 +130,7 @@ for(stockn in stocks$stockname){
   
   HAR_AS_fc_r[[stockn]] <- rep(NA, n_for)
   for (i in 0:(n_for - 1)) {
+#  for (i in 1:(n_for)) {
     temp <- HAR_DATA[[stockn]][1+ i:(w_l + i - 22), ] %>% ts()
     fc_data <- HAR_DATA[[stockn]][w_l + i + 1 - 22, -1]
     model <- tslm(RV ~ RV_n + RV_p + RV_5 + RV_22, data = temp)
@@ -142,6 +143,7 @@ for(stockn in stocks$stockname){
   
   HAR_AS_fc_e[[stockn]] <- rep(NA, n_for)
   for (i in 0:(n_for - 1)) {
+#  for (i in 1:(n_for)) {
     temp <- HAR_DATA[[stockn]][1:(w_l + i - 22), ] %>% ts()
     fc_data <- HAR_DATA[[stockn]][w_l + i + 1 - 22, -1]
     model <- tslm(RV ~ RV_n + RV_p + RV_5 + RV_22, data = temp)
@@ -442,3 +444,27 @@ stocks_to_remove = which(stocks$all_models_good == FALSE)
 if(length(stocks_to_remove)==0 ) {stocks_to_remove = -seq(from = 1, to = nrow(stocks))}
 allstocks = allstocks[-stocks_to_remove]
 stocks = stocks[-stocks_to_remove,]
+
+
+# Correct data for identical dates 
+
+for(stockn in stocks$stockname){
+  print(stockn)
+  n_for = stocks$n_for[which(stocks$stockname == stockn)] # TODO set better numbers  
+  print(n_for)  
+
+  AR1_RV_fc_e[[stockn]] = AR1_RV_fc_e[[stockn]][-n_for]
+  AR1_RV_fc_r[[stockn]] = AR1_RV_fc_r[[stockn]][-n_for]
+  HAR_fc_e[[stockn]] = HAR_fc_e[[stockn]][-n_for]
+  HAR_fc_r[[stockn]] = HAR_fc_r[[stockn]][-n_for]
+  HAR_AS_fc_e[[stockn]] = HAR_AS_fc_e[[stockn]][-1]
+  HAR_AS_fc_r[[stockn]] = HAR_AS_fc_r[[stockn]][-1]
+  HAR_RS_fc_e[[stockn]] = HAR_RS_fc_e[[stockn]][-1]
+  HAR_RS_fc_r[[stockn]] = HAR_RS_fc_r[[stockn]][-1]
+  HAR_RSRK_fc_e[[stockn]] = HAR_RSRK_fc_e[[stockn]][-1]
+  HAR_RSRK_fc_r[[stockn]] = HAR_RSRK_fc_r[[stockn]][-1]
+  RGARCH_fc_e[[stockn]] = RGARCH_fc_e[[stockn]][-n_for]
+  RGARCH_fc_r[[stockn]] = RGARCH_fc_r[[stockn]][-n_for]
+  ARMAGARCH_fc_e[[stockn]] = ARMAGARCH_fc_e[[stockn]][-n_for]
+  ARMAGARCH_fc_r[[stockn]] = ARMAGARCH_fc_r[[stockn]][-n_for]
+}

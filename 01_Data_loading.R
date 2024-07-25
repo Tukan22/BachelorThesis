@@ -21,8 +21,6 @@ library(mosaic)
 library(segMGarch)
 library(GAS)
 
-allstocks[["AAPL"]]
-
 ##############################
 ### READING FROM PARQUET   ###
 ###    Not necessary if    ###

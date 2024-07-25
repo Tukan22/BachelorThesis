@@ -1,8 +1,12 @@
 n_for = 252 
-pre_covid_end_date = as.Date("2020-02-03") - n_for - 3   
 
+# pre_covid_end_date = as.Date("2020-02-03") - n_for - 3   
 
-pre_covid_end_date = as.Date("2019-02-13")
+# pre_covid_end_date = as.Date("2019-02-13")
+
+# forecast_start_date = as.Date("2019-02-15")
+
+# forecast_start_date = as.Date("2019-05-24")
 
 
 

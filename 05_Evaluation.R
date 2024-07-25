@@ -31,7 +31,8 @@ for(stockn in stocks$stockname){
   n_for = stocks[which(stocks$stockname == stockn),"n_for"] 
   w_l = stocks[which(stocks$stockname == stockn),"w_l"]
   
-  true_vals[[stockn]] <- as.vector(sqrt(allstocks[[stockn]]$RV[(w_l+2):(w_l+1+n_for),]))
+#  true_vals[[stockn]] <- as.vector(sqrt(allstocks[[stockn]]$RV[(w_l+2):(w_l+1+n_for),]))
+  true_vals[[stockn]] <- as.vector(sqrt(allstocks[[stockn]]$RV[(w_l+2):(w_l+n_for),]))
   
   AR1_RV_fc_e_er[[stockn]]  <- true_vals[[stockn]] - AR1_RV_fc_e[[stockn]]
   AR1_RV_fc_r_er[[stockn]]  <- true_vals[[stockn]] - AR1_RV_fc_r[[stockn]]

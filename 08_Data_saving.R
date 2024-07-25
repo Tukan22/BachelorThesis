@@ -133,12 +133,15 @@ save(wald_test, file = "Data/wald_test.Rdata")
 
 save(MeanVarValues_2, file = "Data/MeanVarValues_2")
 
-save(MSE_e, file = "Data/MSE_e")
-save(MSE_r, file = "Data/MSE_r")
-save(MAE_e, file = "Data/MAE_e")
-save(MAE_r, file = "Data/MAE_r")
+save(MSE_e, file = "Data/MSE_e.RData")
+save(MSE_r, file = "Data/MSE_r.RData")
+save(MAE_e, file = "Data/MAE_e.RData")
+save(MAE_r, file = "Data/MAE_r.RData")
 
 
-save(VarBackestingValues, file = "Data/VarBackestingValues")
+save(VarBackestingValues, file = "Data/VarBackestingValues.RData")
 
-save(VarResults, file = "Data/VarResults") 
+ save(VarResults, file = "Data/VarResults.RData") 
+
+save(DMresults_e, file = "Data/DMresults_e.RData") 
+save(DMresults_r, file = "Data/DMresults_r.RData") 

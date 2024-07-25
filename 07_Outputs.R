@@ -1,4 +1,5 @@
 
+
 ###############################
 ### Plot of mean vs. stddev ###
 ###############################
@@ -260,41 +261,41 @@ dev.off()
 
 
 
-print(
-  xtable(
-    DM_output("mean"), 
-    caption = c("This table shows the means of p-values of the Diebold-Mariano test for respective combinations of models.
-                The values below the diagonal are for rolling window forecast, the values above the diagonal are for the expanding window forecast.", 
-      "DM test means"), 
-    label = "Table:DM_test_mean", 
-    digits = 2 
-  ), 
-  file = "Outputs/DM_test_mean.tex" 
-)
+#print(
+#  xtable(
+#    DM_output("mean"), 
+#    caption = c("This table shows the means of p-values of the Diebold-Mariano test for respective combinations of models.
+#                The values below the diagonal are for rolling window forecast, the values above the diagonal are for the expanding window forecast.", 
+#      "DM test means"), 
+#    label = "Table:DM_test_mean", 
+#    digits = 2 
+#  ), 
+#  file = "Outputs/DM_test_mean.tex" 
+#)
 
-print(
-  xtable(
-    DM_output("sd"), 
-    caption = c("This table shows the standard deviations of p-values of the Diebold-Mariano test for respective combinations of models. 
-                The values below the diagonal are for rolling window forecast, the values above the diagonal are for the expanding window forecast.", 
-                "DM test standard deviations"), 
-    label = "Table:DM_test_SD", 
-    digits = 2 
-  ), 
-  file = "Outputs/DM_test_SD.tex" 
-)
+#print(
+#  xtable(
+#    DM_output("sd"), 
+#    caption = c("This table shows the standard deviations of p-values of the Diebold-Mariano test for respective combinations of models. 
+#                The values below the diagonal are for rolling window forecast, the values above the diagonal are for the expanding window forecast.", 
+#                "DM test standard deviations"), 
+#    label = "Table:DM_test_SD", 
+#    digits = 2 
+#  ), 
+#  file = "Outputs/DM_test_SD.tex" 
+#)
 
-print(
-  xtable(
-    DM_output("threshold"), 
-    caption = c("This table shows the the percentage for how many stocks the p-value of the Diebold-Mariano test was below 0.05 for respective combinations of models.
-                The values below the diagonal are for rolling window forecast, the values above the diagonal are for the expanding window forecast.", 
-                "DM test below 0.05"), 
-    label = "Table:DM_test_threshold", 
-    digits = 2 
-  ), 
-  file = "Outputs/DM_test_threshold.tex" 
-)
+#print(
+#  xtable(
+#    DM_output("threshold"), 
+#    caption = c("This table shows the the percentage for how many stocks the p-value of the Diebold-Mariano test was below 0.05 for respective combinations of models.
+#                The values below the diagonal are for rolling window forecast, the values above the diagonal are for the expanding window forecast.", 
+#                "DM test below 0.05"), 
+#    label = "Table:DM_test_threshold", 
+#    digits = 2 
+#  ), 
+#  file = "Outputs/DM_test_threshold.tex" 
+#)
 
 
 
@@ -388,3 +389,5 @@ printbacktesting <- function(VaRresults, scheme, filename){
 
 printbacktesting(VaRresults = VaRresults, scheme = "rolling", filename = "Plots/Backtesting_r.pdf")
 printbacktesting(VaRresults = VaRresults, scheme = "expanding", filename = "Plots/Backtesting_e.pdf")
+
+# forecast_start_date

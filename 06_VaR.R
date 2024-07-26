@@ -56,8 +56,8 @@ VaR <- function(VaRalpha)
     print(paste(counter, " - ", stockn ,sep="")) 
     
     retstouse = allstocks[[stockn]]$ret[
-      min(which(index(allstocks[[stockn]])>=as.Date(forecast_start_date))+1):
-        min(which(index(allstocks[[stockn]])>=(as.Date(forecast_start_date)))+n_for-1)] 
+      min(which(index(allstocks[[stockn]])>=as.Date(forecast_start_date))+2):
+        min(which(index(allstocks[[stockn]])>=(as.Date(forecast_start_date)))+n_for)] 
     
     x=as.xts(allstocks[[stockn]]$ret)     
     
@@ -203,4 +203,3 @@ VaR <- function(VaRalpha)
   
   return(VaRresults)
 }
-

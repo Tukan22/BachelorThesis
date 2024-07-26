@@ -101,7 +101,8 @@ LBresid =   unlist(
   lapply(
     ARMA_fit, 
     FUN = function(x){
-      Box.test(x$residuals, type = 'Ljung-Box',lag = 5)$p.value
+      Box.test(x$residuals, type = 'Ljung-Box',lag = log(length(x$residuals)) )$p.value
+#      Box.test(x$residuals, type = 'Box-Pierce',lag = 5)$p.value
     }
   )
 )
@@ -111,6 +112,8 @@ abline(h = 0.05, col = "red", lty = 2, lwd = 2)
 axis(2, at=seq(from = 0, to = 1, by = 0.05), labels=TRUE, las = 2, cex.axis = 1.8)
 
 dev.off() 
+
+
 
 #####################################
 ### Basic overview of used stocks ###
@@ -188,6 +191,55 @@ par(mfrow = c(1, 1))
 dev.off() 
 
 
+MSE_r_output = t(as.data.frame(MSE_r)) 
+colnames(MSE_r_output)  <- c("AR(1)-RV", "HAR","HAR-AS", "HAR-RS", "HAR-RSRK", "RGARCH", "GARCH")
+
+MSE_e_output = t(as.data.frame(MSE_e)) 
+colnames(MSE_e_output)  <- c("AR(1)-RV", "HAR","HAR-AS", "HAR-RS", "HAR-RSRK", "RGARCH", "GARCH")
+
+MAE_r_output = t(as.data.frame(MAE_r)) 
+colnames(MAE_r_output)  <- c("AR(1)-RV", "HAR","HAR-AS", "HAR-RS", "HAR-RSRK", "RGARCH", "GARCH")
+
+MAE_e_output = t(as.data.frame(MAE_e)) 
+colnames(MAE_e_output)  <- c("AR(1)-RV", "HAR","HAR-AS", "HAR-RS", "HAR-RSRK", "RGARCH", "GARCH")
+
+better_MSE = ifelse(MSE_r_output > MSE_e_output, "Expanding", "Rolling")
+better_MAE = ifelse(MAE_r_output > MAE_e_output, "Expanding", "Rolling")
+
+print(
+ xtable(
+as.data.frame(
+rbind(
+colSums(better_MSE == "Rolling"),
+colSums(better_MSE == "Expanding")
+),
+row.names = c("Rolling","Expanding")
+), 
+caption = c("This table shows a summary of how many stocks for each model perform better with expanding or rolling forecasting scheme according to mean square error. ",
+"Better scheme MSE summary"), 
+label = "Table:Better_MSE_summary"
+ ),
+ file = "Outputs/Better_MSE_summary.tex"
+)
+
+print(
+ xtable(
+as.data.frame(
+rbind(
+colSums(better_MAE == "Rolling"),
+colSums(better_MAE == "Expanding")
+),
+row.names = c("Rolling","Expanding")
+), 
+caption = c("This table shows a summary of how many stocks for each model perform better with expanding or rolling forecasting scheme according to mean absolute error. ",
+               "Better scheme MAE summary"), 
+   label = "Table:Better_MAE_summary"
+ ), 
+ file = "Outputs/Better_MAE_summary.tex"
+)
+
+
+
 
 ###########################################
 ### Mincer-Zarnowitz regression results ###
@@ -212,9 +264,25 @@ colnames(mincer_p_vals) = rownames(mincer[[1]])
 mincer_p_vals_e = mincer_p_vals[, seq(from = 1, to = 14, by= 2)]
 mincer_p_vals_r = mincer_p_vals[, seq(from = 2, to = 14, by= 2)]
 
+mincer_R_squared = 
+  t(
+    as.data.frame(
+      lapply(mincer, FUN = function(x) {#paste(
+        #        round(x[,1], digits = 2), 
+        #        round(x[,2], digits = 2), 
+        #        round(x[,3], digits = 2), 
+        x[,5]
+        #        )
+      })))
+
+colnames(mincer_R_squared) = rownames(mincer[[1]])
+mincer_R_squared_e = mincer_R_squared[, seq(from = 1, to = 14, by= 2)]
+mincer_R_squared_r = mincer_R_squared[, seq(from = 2, to = 14, by= 2)]
+
 pdf(file = "Plots/MZreg.pdf", width = 16, height = 12)
 
-par(mfrow = c(1,2))
+par(mfrow = c(2,2))
+
 boxplot(mincer_p_vals_e, outline = FALSE, xaxt = 'n', main = "MZ regression p-value of expanding forecasts", cex.main = 1.6)
 abline(h = 0.05, col = "red", lwd = 2, lty = 2) 
 axis(1, at=1:7, labels=FALSE, xaxt ='n')
@@ -224,14 +292,29 @@ boxplot(mincer_p_vals_r, outline = FALSE, xaxt = 'n', main = "MZ regression p-va
 abline(h = 0.05, col = "red", lwd = 2, lty = 2) 
 axis(1, at=1:7, labels=FALSE, xaxt ='n')
 text(x=1:7, y=par("usr")[3] , labels=outputcolnames[seq(from = 2, to = 14, by = 2)], srt=90, adj=1, xpd=TRUE, cex=1.1)
-par(mfrow = c(1,1))
+
+boxplot(mincer_R_squared_e, outline = FALSE, xaxt = 'n', main = "MZ regression R-squared of expanding forecasts", cex.main = 1.6)
+#abline(h = 0.05, col = "red", lwd = 2, lty = 2) 
+axis(1, at=1:7, labels=FALSE, xaxt ='n')
+text(x=1:7, y=par("usr")[3] , labels=outputcolnames[seq(from = 1, to = 14, by = 2)], srt=90, adj=1, xpd=TRUE, cex=1.1)
+
+boxplot(mincer_R_squared_r, outline = FALSE, xaxt = 'n', main = "MZ regression R-squared of rolling forecasts", cex.main = 1.6)
+#abline(h = 0.05, col = "red", lwd = 2, lty = 2) 
+axis(1, at=1:7, labels=FALSE, xaxt ='n')
+text(x=1:7, y=par("usr")[3] , labels=outputcolnames[seq(from = 2, to = 14, by = 2)], srt=90, adj=1, xpd=TRUE, cex=1.1)
 
 dev.off()
+
+par(mfrow = c(1,1))
+
+
 
 
 ####################################
 ### Diebold-Mariano test results ### 
 ####################################
+
+modelnames = c("AR(1)-RV","HAR","HAR-AS","HAR-RSV","HAR-RSRK","RGARCH","ARMAGARCH")
 
 pdf(file = "Plots/DMpval.pdf", width = 16, height = 12) 
 
@@ -250,6 +333,7 @@ for(i1 in seq(from = 1, to =7)){
   boxplot(t(DM_box_data_e)[,modelselection], ylim = c(0,1), 
           main = modelnames[i1], xaxt = 'n', cex.main = 2, yaxt = 'n', bty = 'n') 
   abline(h = 0.05, col = "red", lwd = 4, lty = 2) 
+  abline(h = 0.95, col = "red", lwd = 4, lty = 2) 
   axis(1, at=1:6, labels=FALSE, xaxt ='n')
   axis(2, at=seq(from = 0, to = 1, by = 0.05), labels=seq(from = 0, to = 1, by = 0.05), xaxt ='n')
   # indent = 10^(round(log(mean(plotvar), base = 10))-2)*5  
@@ -257,7 +341,6 @@ for(i1 in seq(from = 1, to =7)){
 }
 
 dev.off() 
-
 
 
 

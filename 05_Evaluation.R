@@ -198,8 +198,8 @@ for(i1 in seq(from = 1, to =  7)){
     DMresults_r[[i1]][[i2]] = list() 
     if(i1 != i2){
       for(stockn in stocks$stockname){
-        DMresults_e[[i1]][[i2]][[stockn]] = dm.test(true_vals[[stockn]]-Exp_fc_list[[i1]][[stockn]], true_vals[[stockn]]-Exp_fc_list[[i2]][[stockn]], alternative = "greater")$p.value
-        DMresults_r[[i1]][[i2]][[stockn]] = dm.test(true_vals[[stockn]]-Rol_fc_list[[i1]][[stockn]], true_vals[[stockn]]-Rol_fc_list[[i2]][[stockn]], alternative = "greater")$p.value  
+        DMresults_e[[i1]][[i2]][[stockn]] = dm.test(abs(true_vals[[stockn]]-Exp_fc_list[[i1]][[stockn]]), abs(true_vals[[stockn]]-Exp_fc_list[[i2]][[stockn]]), alternative = "greater")$p.value
+        DMresults_r[[i1]][[i2]][[stockn]] = dm.test(abs(true_vals[[stockn]]-Rol_fc_list[[i1]][[stockn]]), abs(true_vals[[stockn]]-Rol_fc_list[[i2]][[stockn]]), alternative = "greater")$p.value  
       }
     }
   }
@@ -294,3 +294,5 @@ for(stockn in stocks$stockname){
   
   counter = counter + 1 
 }
+
+

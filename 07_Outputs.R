@@ -145,8 +145,8 @@ colnames(overview_side) = rep(c("Stock","Start","End date", "Obs", paste("Obs be
 
  print(
    xtable(overview_side,
-         caption = c(paste("This table shows the overview of start date, end date, number of observations and number of observations 
-                     for the before covid training set, i. e. observations prior to ",pre_covid_end_date, sep =""), 
+         caption = c(paste("Overview of start date, end date, number of observations available and number of observations 
+                     in the training set", sep =""), 
                      "Overview"), 
          label = "Table:Overview", 
          auto = TRUE
@@ -215,7 +215,7 @@ colSums(better_MSE == "Expanding")
 ),
 row.names = c("Rolling","Expanding")
 ), 
-caption = c("This table shows a summary of how many stocks for each model perform better with expanding or rolling forecasting scheme according to mean square error. ",
+caption = c("Better performing forecasting scheme for each model according to MSE",
 "Better scheme MSE summary"), 
 label = "Table:Better_MSE_summary"
  ),
@@ -231,13 +231,12 @@ colSums(better_MAE == "Expanding")
 ),
 row.names = c("Rolling","Expanding")
 ), 
-caption = c("This table shows a summary of how many stocks for each model perform better with expanding or rolling forecasting scheme according to mean absolute error. ",
+caption = c("Better performing forecasting scheme for each model according to MAE",
                "Better scheme MAE summary"), 
    label = "Table:Better_MAE_summary"
  ), 
  file = "Outputs/Better_MAE_summary.tex"
 )
-
 
 
 

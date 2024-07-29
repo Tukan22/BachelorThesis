@@ -38,8 +38,7 @@ Backtests_ARMAGARCH_r = list()
 
 
 
-VaR <- function(VaRalpha)
-{
+VaR <- function(VaRalpha){
   
   # Runs approximately 90 seconds 
   start_time = Sys.time()

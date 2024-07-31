@@ -1,0 +1,136 @@
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch main
+# Your branch is up to date with 'origin/main'.
+#
+# Changes to be committed:
+#	modified:   .Rhistory
+#	new file:   Data/Original_data_stocks/RM_AAL
+#	new file:   Data/Original_data_stocks/RM_AAPL
+#	new file:   Data/Original_data_stocks/RM_ABBV
+#	new file:   Data/Original_data_stocks/RM_ACN
+#	new file:   Data/Original_data_stocks/RM_ADBE
+#	new file:   Data/Original_data_stocks/RM_AMAT
+#	new file:   Data/Original_data_stocks/RM_AMD
+#	new file:   Data/Original_data_stocks/RM_AMGN
+#	new file:   Data/Original_data_stocks/RM_AMZN
+#	new file:   Data/Original_data_stocks/RM_ANET
+#	new file:   Data/Original_data_stocks/RM_AVGO
+#	new file:   Data/Original_data_stocks/RM_BA
+#	new file:   Data/Original_data_stocks/RM_BAC
+#	new file:   Data/Original_data_stocks/RM_BKNG
+#	new file:   Data/Original_data_stocks/RM_C
+#	new file:   Data/Original_data_stocks/RM_CAT
+#	new file:   Data/Original_data_stocks/RM_CELH
+#	new file:   Data/Original_data_stocks/RM_CMCSA
+#	new file:   Data/Original_data_stocks/RM_CMG
+#	new file:   Data/Original_data_stocks/RM_COIN
+#	new file:   Data/Original_data_stocks/RM_COP
+#	new file:   Data/Original_data_stocks/RM_COST
+#	new file:   Data/Original_data_stocks/RM_CRM
+#	new file:   Data/Original_data_stocks/RM_CRWD
+#	new file:   Data/Original_data_stocks/RM_CSCO
+#	new file:   Data/Original_data_stocks/RM_CVNA
+#	new file:   Data/Original_data_stocks/RM_CVS
+#	new file:   Data/Original_data_stocks/RM_CVX
+#	new file:   Data/Original_data_stocks/RM_DDOG
+#	new file:   Data/Original_data_stocks/RM_DELL
+#	new file:   Data/Original_data_stocks/RM_DIS
+#	new file:   Data/Original_data_stocks/RM_DKNG
+#	new file:   Data/Original_data_stocks/RM_EMR
+#	new file:   Data/Original_data_stocks/RM_FCX
+#	new file:   Data/Original_data_stocks/RM_FTNT
+#	new file:   Data/Original_data_stocks/RM_GE
+#	new file:   Data/Original_data_stocks/RM_GME
+#	new file:   Data/Original_data_stocks/RM_GOOG
+#	new file:   Data/Original_data_stocks/RM_GS
+#	new file:   Data/Original_data_stocks/RM_HD
+#	new file:   Data/Original_data_stocks/RM_HES
+#	new file:   Data/Original_data_stocks/RM_IBM
+#	new file:   Data/Original_data_stocks/RM_INTC
+#	new file:   Data/Original_data_stocks/RM_JNJ
+#	new file:   Data/Original_data_stocks/RM_JPM
+#	new file:   Data/Original_data_stocks/RM_KO
+#	new file:   Data/Original_data_stocks/RM_LIN
+#	new file:   Data/Original_data_stocks/RM_LLY
+#	new file:   Data/Original_data_stocks/RM_LRCX
+#	new file:   Data/Original_data_stocks/RM_MA
+#	new file:   Data/Original_data_stocks/RM_MARA
+#	new file:   Data/Original_data_stocks/RM_MCD
+#	new file:   Data/Original_data_stocks/RM_MCHP
+#	new file:   Data/Original_data_stocks/RM_MELI
+#	new file:   Data/Original_data_stocks/RM_META
+#	new file:   Data/Original_data_stocks/RM_MNST
+#	new file:   Data/Original_data_stocks/RM_MRK
+#	new file:   Data/Original_data_stocks/RM_MSFT
+#	new file:   Data/Original_data_stocks/RM_MSTR
+#	new file:   Data/Original_data_stocks/RM_MU
+#	new file:   Data/Original_data_stocks/RM_NEE
+#	new file:   Data/Original_data_stocks/RM_NFLX
+#	new file:   Data/Original_data_stocks/RM_NKE
+#	new file:   Data/Original_data_stocks/RM_NOW
+#	new file:   Data/Original_data_stocks/RM_NVDA
+#	new file:   Data/Original_data_stocks/RM_NXPI
+#	new file:   Data/Original_data_stocks/RM_ORCL
+#	new file:   Data/Original_data_stocks/RM_PANW
+#	new file:   Data/Original_data_stocks/RM_PEP
+#	new file:   Data/Original_data_stocks/RM_PFE
+#	new file:   Data/Original_data_stocks/RM_PG
+#	new file:   Data/Original_data_stocks/RM_PINS
+#	new file:   Data/Original_data_stocks/RM_PLTR
+#	new file:   Data/Original_data_stocks/RM_PRFT
+#	new file:   Data/Original_data_stocks/RM_PYPL
+#	new file:   Data/Original_data_stocks/RM_QCOM
+#	new file:   Data/Original_data_stocks/RM_SBUX
+#	new file:   Data/Original_data_stocks/RM_SHOP
+#	new file:   Data/Original_data_stocks/RM_SMCI
+#	new file:   Data/Original_data_stocks/RM_SO
+#	new file:   Data/Original_data_stocks/RM_SPGI
+#	new file:   Data/Original_data_stocks/RM_SQ
+#	new file:   Data/Original_data_stocks/RM_SYK
+#	new file:   Data/Original_data_stocks/RM_TJX
+#	new file:   Data/Original_data_stocks/RM_TMO
+#	new file:   Data/Original_data_stocks/RM_TMUS
+#	new file:   Data/Original_data_stocks/RM_TSLA
+#	new file:   Data/Original_data_stocks/RM_TSN
+#	new file:   Data/Original_data_stocks/RM_TXN
+#	new file:   Data/Original_data_stocks/RM_UBER
+#	new file:   Data/Original_data_stocks/RM_UNH
+#	new file:   Data/Original_data_stocks/RM_V
+#	new file:   Data/Original_data_stocks/RM_VRT
+#	new file:   Data/Original_data_stocks/RM_VRTX
+#	new file:   Data/Original_data_stocks/RM_VST
+#	new file:   Data/Original_data_stocks/RM_WDAY
+#	new file:   Data/Original_data_stocks/RM_WFC
+#	new file:   Data/Original_data_stocks/RM_WMT
+#	new file:   Data/Original_data_stocks/RM_XOM
+#	new file:   LaTeX/Comparison of GARCH models forecasting performance with respect to Value at risk_10.zip
+#	new file:   LaTeX/Comparison of GARCH models forecasting performance with respect to Value at risk_11.zip
+#	new file:   LaTeX/Comparison of GARCH models forecasting performance with respect to Value at risk_12.zip
+#	new file:   LaTeX/Comparison of GARCH models forecasting performance with respect to Value at risk_13.zip
+#	new file:   LaTeX/Comparison of GARCH models forecasting performance with respect to Value at risk_6.zip
+#	new file:   LaTeX/Comparison of GARCH models forecasting performance with respect to Value at risk_7.zip
+#	new file:   LaTeX/Comparison of GARCH models forecasting performance with respect to Value at risk_8.zip
+#	new file:   LaTeX/Comparison of GARCH models forecasting performance with respect to Value at risk_9.zip
+#	modified:   Outputs/Better_MAE_summary.tex
+#	modified:   Outputs/Better_MSE_summary.tex
+#	modified:   Outputs/Overview.tex
+#	modified:   Plots/Backtesting_e.pdf
+#	modified:   Plots/Backtesting_r.pdf
+#	modified:   Plots/DMpval.pdf
+#	modified:   Plots/Errors.pdf
+#	modified:   Plots/LBresidpval.pdf
+#	modified:   Plots/MZreg.pdf
+#	modified:   Plots/Meanstddev.pdf
+#	modified:   Plots/jpg/Backtesting_e.jpg
+#	modified:   Plots/jpg/Backtesting_r.jpg
+#	modified:   Plots/jpg/DMpval.jpg
+#	modified:   Plots/jpg/LBresidpval.jpg
+#	modified:   Plots/jpg/Meanstddev.jpg
+#	new file:   Plots/jpg/Old/Backtesting_e.jpg
+#	new file:   Plots/jpg/Old/Backtesting_r.jpg
+#	new file:   Plots/jpg/Old/DMpval.jpg
+#	new file:   Plots/jpg/Old/Meanstddev.jpg
+#

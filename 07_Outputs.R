@@ -10,10 +10,11 @@ plot(
   x = unlist(lapply(allstocks, FUN = function(x){mean(x$ret)})), 
   y = unlist(lapply(allstocks, FUN = function(x){sd(x$ret)})), 
   xlab = "Mean", ylab = "Standard deviation", 
-  main = "SD vs. mean of selected stocks", 
+  main = "Standard deviation vs. mean of selected stocks", 
   cex.main = 3, 
-  cex.lab = 1.4, 
-  cex.axis = 1.3
+  cex.lab = 1.6, 
+  cex.axis = 2, 
+  cex = 2 
 )
 model = lm(unlist(lapply(allstocks, FUN = function(x){sd(x$ret)}))~unlist(lapply(allstocks, FUN = function(x){mean(x$ret)})), )
 
@@ -107,7 +108,7 @@ LBresid =   unlist(
   )
 )
 
-boxplot(LBresid, type = 'o', main = "Ljung-Box test on residuals of ARMA(1,1) model", yaxt = 'n', cex.main = 2, xlab = "p-value", cex.lab = 2)
+boxplot(LBresid, type = 'o', main = "Ljung-Box test on residuals of ARMA(1,1) model", yaxt = 'n', cex.main = 3, xlab = "p-value", cex.lab = 3)
 abline(h = 0.05, col = "red", lty = 2, lwd = 2)
 axis(2, at=seq(from = 0, to = 1, by = 0.05), labels=TRUE, las = 2, cex.axis = 1.8)
 
@@ -313,11 +314,12 @@ par(mfrow = c(1,1))
 ### Diebold-Mariano test results ### 
 ####################################
 
-modelnames = c("AR(1)-RV","HAR","HAR-AS","HAR-RSV","HAR-RSRK","RGARCH","ARMAGARCH")
+modelnames = c("AR(1)-RV","HAR","HAR-AS","HAR-RSV","HAR-RSRK","RGARCH","GARCH")
 
-pdf(file = "Plots/DMpval.pdf", width = 16, height = 12) 
+pdf(file = "Plots/DMpval.pdf", width = 8.27, height = 11.69) 
 
-par(mfrow = c(1,7))
+# par(mfrow = c(1,7))
+par(mfrow = c(2,4))
 
 for(i1 in seq(from = 1, to =7)){
   modelselection = seq(from = 1, to = 7)[-i1] 
@@ -336,12 +338,14 @@ for(i1 in seq(from = 1, to =7)){
   axis(1, at=1:6, labels=FALSE, xaxt ='n')
   axis(2, at=seq(from = 0, to = 1, by = 0.05), labels=seq(from = 0, to = 1, by = 0.05), xaxt ='n')
   # indent = 10^(round(log(mean(plotvar), base = 10))-2)*5  
-  text(x=1:6, y=par("usr")[3]+0.025 , labels=modelnames[modelselection], srt=90, adj=1, xpd=TRUE, cex=1.5)
+  text(x=1:6, y=par("usr")[3]+0.025 , labels=modelnames[modelselection], srt=90, adj=1, xpd=TRUE, cex=1.3)
 }
 
 dev.off() 
 
 
+
+modelnames = c("AR(1)-RV","HAR","HAR-AS","HAR-RSV","HAR-RSRK","RGARCH","ARMAGARCH")
 
 #print(
 #  xtable(
@@ -406,14 +410,15 @@ printbacktesting <- function(VaRresults, scheme, filename){
   outputcolnames = c("AR(1)-RV", "AR(1)-RV", "HAR", "HAR", "HAR-AS", "HAR-AS", "HAR-RSV", "HAR-RSV", 
                      "HAR-RSRK", "HAR-RSRK", "RGARCH", "RGARCH", "GARCH", "GARCH")
   
-  counter = 1 
-  pdf(file = filename, width = 16, height = 12)
-  par(mfrow =c(3,4))
   
-  for(VaRresults_output in VarResults){
+  pdf(file = filename, width = 8.27, height = 11.29)
+  par(mfrow =c(4,3))
+  
+  for(measure in seq(from = 2, to = 5, by = 1)){
+    counter = 1 
+    for(VaRresults_output in VarResults){
     # VaRresults_output = VaR(VaRalpha)
     
-    for(measure in seq(from = 2, to = 5, by = 1)){
       output_e = data.frame(matrix(rep(NA, times =  7*nrow(stocks)), ncol = 7)) 
       output_r = data.frame(matrix(rep(NA, times =  7*nrow(stocks)), ncol = 7)) 
       
@@ -446,12 +451,20 @@ printbacktesting <- function(VaRresults, scheme, filename){
         plotoutput = output_r 
       }
       
-      if(counter * measure == 15){
-        boxplot(plotoutput, outline  = FALSE, main = colnames(VaRresults_output[[1]])[measure], cex.main = 2, xaxt = 'n', ylim = c(0, 0.012))
+#      if(counter * measure == 15){
+#        boxplot(plotoutput, outline  = FALSE, main = colnames(VaRresults_output[[1]])[measure], cex.main = 2, xaxt = 'n', ylim = c(0, 0.012))
+#      }
+#      else{
+#        boxplot(plotoutput, outline  = FALSE, main = colnames(VaRresults_output[[1]])[measure], cex.main = 2, xaxt = 'n')
+#      }
+      
+      if(measure == 5){
+        boxplot(plotoutput, outline  = FALSE, main = colnames(VaRresults_output[[1]])[measure], cex.main = 2, xaxt = 'n', ylim = c(0, 0.12))
       }
       else{
-        boxplot(plotoutput, outline  = FALSE, main = colnames(VaRresults_output[[1]])[measure], cex.main = 2, xaxt = 'n')
+        boxplot(plotoutput, outline  = FALSE, main = colnames(VaRresults_output[[1]])[measure], cex.main = 2, xaxt = 'n', ylim = c(0, 1))
       }
+      
       axis(1, at=1:7, labels=FALSE, xaxt ='n')
       text(x=1:7, y=par("usr")[3] , labels=colnames(plotoutput), srt=90, adj=1, xpd=TRUE, cex=1.2)
       
@@ -461,10 +474,9 @@ printbacktesting <- function(VaRresults, scheme, filename){
       else{
         abline(h = 0.05, col = "red", lty = 2, lwd = 2)
       }
+      counter = counter + 1
     }
-    counter = counter + 1 
   }
-  
   par(mfrow =c(1,1))
   dev.off() 
 }

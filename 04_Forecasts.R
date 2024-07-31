@@ -13,15 +13,15 @@ counter = 1
 
 for(stockn in stocks$stockname){
 # for(stockn in c("ANET")){
-  w_l = stocks$w_l[which(stocks$stockname == stockn)]    # TODO set better numbers 
-  n_for = stocks$n_for[which(stocks$stockname == stockn)] # TODO set better numbers  
+  w_l = stocks$w_l[which(stocks$stockname == stockn)] 
+  n_for = stocks$n_for[which(stocks$stockname == stockn)] 
   
   print(paste(counter, ": ", stockn, sep = ""))
   print("   Rolling")
 
   # AR1-RV
   # rolling
-  AR1_RV_fc_r[[stockn]]<-lapply(1:n_for, function(x) arima(allstocks[[stockn]]$RV[x:(w_l+x),],order=c(1,0,0)))   # TODO arima order 
+  AR1_RV_fc_r[[stockn]]<-lapply(1:n_for, function(x) arima(allstocks[[stockn]]$RV[x:(w_l+x),],order=c(1,0,0))) 
   AR1_RV_fc_r[[stockn]]<-sapply(1:n_for, function(x) predict(AR1_RV_fc_r[[stockn]][[x]],n.ahead = 1)$pred)
   AR1_RV_fc_r[[stockn]]<-xts(AR1_RV_fc_r[[stockn]],order.by=index(allstocks[[stockn]][(w_l+2):(w_l+1+n_for),]))
   
@@ -29,7 +29,7 @@ for(stockn in stocks$stockname){
   
   print("   Expanding")
   # expanding
-  AR1_RV_fc_e[[stockn]] <- lapply(1:n_for, function(x) arima(allstocks[[stockn]]$RV[1:(w_l+x),],order=c(1,0,0))) # TODO arima order 
+  AR1_RV_fc_e[[stockn]] <- lapply(1:n_for, function(x) arima(allstocks[[stockn]]$RV[1:(w_l+x),],order=c(1,0,0))) 
   AR1_RV_fc_e[[stockn]] <- sapply(1:n_for, function(x) predict(AR1_RV_fc_e[[stockn]][[x]],n.ahead = 1)$pred)
   AR1_RV_fc_e[[stockn]] <- xts(AR1_RV_fc_e[[stockn]],order.by=index(allstocks[[stockn]][(w_l+2):(w_l+1+n_for),]))
   
@@ -38,9 +38,6 @@ for(stockn in stocks$stockname){
 
 AR1_RV_fc_r = lapply(AR1_RV_fc_r, sqrt)   # TODO TBC if correct 
 AR1_RV_fc_e = lapply(AR1_RV_fc_e, sqrt)   # TODO TBC if correct 
-
-# AR1_RV_fc_r = lapply(AR1_RV_fc_r, function(x) {ifelse(is.na(x),0,x)})
-# AR1_RV_fc_e = lapply(AR1_RV_fc_e, function(x) {ifelse(is.na(x),0,x)})
 
 AR1_RV_fc_r = lapply(AR1_RV_fc_r, function(x) {ifelse(x<0,0,x)})
 AR1_RV_fc_e = lapply(AR1_RV_fc_e, function(x) {ifelse(x<0,0,x)})
@@ -93,9 +90,6 @@ for(stockn in stocks$stockname){
  
 HAR_fc_r = lapply(HAR_fc_r, function(x) {ifelse(x<0,0,x)})
 HAR_fc_e = lapply(HAR_fc_e, function(x) {ifelse(x<0,0,x)})
-
-# HAR_fc_r = lapply(HAR_fc_r, function(x) {ifelse(is.na(x),0,x)})
-# HAR_fc_e = lapply(HAR_fc_e, function(x) {ifelse(is.na(x),0,x)})
 
 HAR_fc_r = lapply(HAR_fc_r, sqrt)
 HAR_fc_e = lapply(HAR_fc_e, sqrt)
@@ -158,9 +152,6 @@ for(stockn in stocks$stockname){
 HAR_AS_fc_r = lapply(HAR_AS_fc_r, function(x) {ifelse(x<0,0,x)})
 HAR_AS_fc_e = lapply(HAR_AS_fc_e, function(x) {ifelse(x<0,0,x)})
 
-# HAR_AS_fc_r = lapply(HAR_AS_fc_r, function(x) {ifelse(is.na(x),0,x)})
-# HAR_AS_fc_e = lapply(HAR_AS_fc_e, function(x) {ifelse(is.na(x),0,x)})
-
 HAR_AS_fc_r = lapply(HAR_AS_fc_r, sqrt)
 HAR_AS_fc_e = lapply(HAR_AS_fc_e, sqrt)
 
@@ -216,9 +207,6 @@ for(stockn in stocks$stockname){
 
 HAR_RS_fc_r = lapply(HAR_RS_fc_r, function(x) {ifelse(x<0,0,x)})
 HAR_RS_fc_e = lapply(HAR_RS_fc_e, function(x) {ifelse(x<0,0,x)})
-
-# HAR_RS_fc_r = lapply(HAR_RS_fc_r, function(x) {ifelse(is.na(x),0,x)})
-# HAR_RS_fc_e = lapply(HAR_RS_fc_e, function(x) {ifelse(is.na(x),0,x)})
 
 HAR_RS_fc_r = lapply(HAR_RS_fc_r, sqrt)
 HAR_RS_fc_e = lapply(HAR_RS_fc_e, sqrt)
@@ -277,17 +265,11 @@ for(stockn in stocks$stockname){
 HAR_RSRK_fc_r = lapply(HAR_RSRK_fc_r, function(x) {ifelse(x<0,0,x)})
 HAR_RSRK_fc_e = lapply(HAR_RSRK_fc_r, function(x) {ifelse(x<0,0,x)})
 
-# HAR_RSRK_fc_r = lapply(HAR_RSRK_fc_r, function(x) {ifelse(is.na(x),0,x)})
-# HAR_RSRK_fc_e = lapply(HAR_RSRK_fc_e, function(x) {ifelse(is.na(x),0,x)})
-
 HAR_RSRK_fc_r = lapply(HAR_RSRK_fc_r, sqrt)
 HAR_RSRK_fc_e = lapply(HAR_RSRK_fc_e, sqrt)
 
 save(HAR_RSRK_fc_r, file = "Data/HAR_RSRK_fc_r.Rdata")  
 save(HAR_RSRK_fc_e, file = "Data/HAR_RSRK_fc_e.Rdata") 
-
-
-
 
 
 
@@ -311,20 +293,12 @@ counter = 1
 for(stockn in stocks$stockname){
   w_l = stocks$w_l[which(stocks$stockname == stockn)]    # TODO set better numbers 
   n_for = stocks$n_for[which(stocks$stockname == stockn)] # TODO set better numbers  
-
-#  n_for = 66   # TODO what is this ?!?!?!  
   
   print(paste("ARMA-GARCH ",counter, ": ", stockn, sep = ""))
   print("   Rolling")
   
   # ARMA-GARCH  
   # rolling
-#  ARMAGARCH_fc_r_model[[stockn]] <- ugarchroll(ARMAGARCH, 100*allstocks[[stockn]]$ret[1:(w_l+1),], n.ahead = 1, forecast.length = n_for, 
-#                                         n.start = NULL, refit.every = 21, refit.window = c("moving"), 
-#                                         window.size = w_l, solver = "hybrid", fit.control = list(), 
-#                                         solver.control = list(), calculate.VaR = FALSE, 
-#                                         keep.coef = TRUE)
-  
   
   ARMAGARCH_fc_r_model[[stockn]] = ugarchroll(ARMAGARCH, 100*allstocks[[stockn]]$ret[1:(w_l+n_for+1),], n.ahead = 1, forecast.length = n_for, 
                                              n.start = NULL, refit.every = 21, refit.window = c("moving"), 
@@ -337,12 +311,6 @@ for(stockn in stocks$stockname){
   
   # expanding
   print("   Expanding") 
-
-#  ARMAGARCH_fc_e_model[[stockn]] <- ugarchroll(ARMAGARCH, 100*allstocks[[stockn]]$ret[1:(w_l+1),], n.ahead = 1, forecast.length = n_for, 
-#                                        n.start = NULL, refit.every = 21, refit.window = c("recursive"), 
-#                                        window.size = w_l, solver = "hybrid", fit.control = list(), 
-#                                        solver.control = list(), calculate.VaR = FALSE, 
-#                                        keep.coef = TRUE)
 
   ARMAGARCH_fc_e_model[[stockn]] = ugarchroll(ARMAGARCH, 100*allstocks[[stockn]]$ret[1:(w_l+n_for+1),], n.ahead = 1, forecast.length = n_for, 
                                               n.start = NULL, refit.every = 21, refit.window = c("recursive"), 
@@ -416,7 +384,6 @@ print(end_time2-start_time2)
 
 
 # Check where all forecasts produced reasonable results
-# (in some cases, the model does not converge or does some other weird stuff) 
 stocks$all_models_good = rep(TRUE, times = nrow(stocks))
 for(stockn in stocks$stockname){
   if(
@@ -439,18 +406,16 @@ for(stockn in stocks$stockname){
   }
 }
 
-# Remove data where models did not produce reasonable results 
+# Remove data where models could not be estimated 
 stocks_to_remove = which(stocks$all_models_good == FALSE)
 if(length(stocks_to_remove)==0 ) {stocks_to_remove = -seq(from = 1, to = nrow(stocks))}
 allstocks = allstocks[-stocks_to_remove]
 stocks = stocks[-stocks_to_remove,]
 
-
 # Correct data for identical dates 
-
 for(stockn in stocks$stockname){
   print(stockn)
-  n_for = stocks$n_for[which(stocks$stockname == stockn)] # TODO set better numbers  
+  n_for = stocks$n_for[which(stocks$stockname == stockn)]  
   print(n_for)  
 
   AR1_RV_fc_e[[stockn]] = AR1_RV_fc_e[[stockn]][-n_for]

@@ -1,10 +1,4 @@
 
-# for(stockn in stocks$stockname){
-#  dist = fitdist(data = as.numeric(AR1_RV_fc_e[[stockn]])*1000, distr = "norm")["estimate"] # TODO here I am assuming normal distribution - jarque bera test! 
-#  estimates = dist$estimate/1000 
-#  AR1_RV_fc_e[[stockn]]
-#}
-
 VaR95_AR1_RV_e = list() 
 VaR95_AR1_RV_r = list() 
 VaR95_HAR_e = list() 
@@ -35,9 +29,6 @@ Backtests_RGARCH_r = list()
 Backtests_ARMAGARCH_e = list() 
 Backtests_ARMAGARCH_r = list() 
 
-
-
-
 VaR <- function(VaRalpha){
   
   # Runs approximately 90 seconds 
@@ -45,12 +36,8 @@ VaR <- function(VaRalpha){
   
   counter = 1 
   
-  # VaRalpha = 0.01
-  
   for(stockn in stocks$stockname){   
     VaRresults[[stockn]] = as.data.frame(matrix(rep(NA,  14), ncol = 1))
-    
-    #  for(VaRalpha in c (0.1, 0.05, 0.01)){
     
     print(paste(counter, " - ", stockn ,sep="")) 
     
@@ -103,9 +90,6 @@ VaR <- function(VaRalpha){
     Backtests_RGARCH_r[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_RGARCH_r[[stockn]], alpha = VaRalpha)
     Backtests_ARMAGARCH_e[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_ARMAGARCH_e[[stockn]], alpha = VaRalpha)
     Backtests_ARMAGARCH_r[[stockn]] = BacktestVaR(data = retstouse, VaR = VaR95_ARMAGARCH_r[[stockn]], alpha = VaRalpha)
-    
-    
-    #  }
     
     # Kupiec test p-values
     
@@ -196,9 +180,5 @@ VaR <- function(VaRalpha){
   )
   
   end_time = Sys.time()
-  # print(end_time-start_time)
-  
-#  return(VaRresults_output) 
-  
   return(VaRresults)
 }

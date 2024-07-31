@@ -1,5 +1,4 @@
 
-
 ###############################
 ### Plot of mean vs. stddev ###
 ###############################
@@ -21,76 +20,6 @@ model = lm(unlist(lapply(allstocks, FUN = function(x){sd(x$ret)}))~unlist(lapply
 dev.off() 
 
 
-##############################################
-### Jarque-Bera test p-values on residuals ###
-##############################################
-
-# This does not make sense - I don't care about normality of residuals from the variance models 
-
-# JBpvals_out = 
-#   as.data.frame(
-# stocks[,c(
-# which(names(stocks)=="JBpval_AR1_RV_resid"),
-# which(names(stocks)=="JBpval_HAR_resid"),
-# which(names(stocks)=="JBpval_HAR_AS_resid"),
-# which(names(stocks)=="JBpval_HAR_RS_resid"),
-# which(names(stocks)=="JBpval_HAR_RSRK_resid"),
-# which(names(stocks)=="JBpval_RGARCH_resid"),
-# which(names(stocks)=="JBpval_ARMAGARCH_resid")
-# )],
-# row.names = stocks$stockname
-#   )
-
-# colnames(JBpvals_out) = c("AR1-RV", "HAR", "HAR-AS", "HAR-RS", "HAR-RSRK", "RGARCH", "GARCH") 
-
-# print(
-#   xtable(cbind(
-# JBpvals_out[seq(from = 1, to = nrow(JBpvals_out)/2),] 
-#   ),
-#   caption = c("This table shows the p-values of the Jarque-Bera test of normality for residuals 
-# of all 7 models for the first half of stocks.", 
-# "p-values of Jarque-Bera test on model residuals (1)"), 
-#   label = "Table:JBresid_p_vals_1"
-#   ),
-#   file = "Outputs/JBresid_p_vals_1.tex"
-# )
-
-# print(
-#   xtable(cbind(
-# JBpvals_out[seq(from = nrow(JBpvals_out)/2+1, to = nrow(JBpvals_out)),]
-#   ),
-#   caption = c("This table shows the p-values of the Jarque-Bera test of normality for residuals 
-# of all 7 models for the second half of stocks.", 
-# "p-values of Jarque-Bera test on model residuals (2)"), 
-#   label = "Table:JBresid_p_vals_2"
-#   ),
-#   file = "Outputs/JBresid_p_vals_2.tex"
-# )
-
-
-
-################################
-### Ljung-Box test on returns ##
-################################
-
-# pdf(file = "Plots/LBpstat.pdf", width = 16, height = 12) 
-
-# plot(stocks$LBp_val, type="o", col="blue", xaxt="n", xlab="Stock", ylab="p-value", main="Ljung-Box test p-statistic", 
-#      ylim = c(0 ,max(stocks$LBp_val)*1.1))
-# abline(h = 0.05, col = "red", lwd = 2, lty = 2)
-
-# # Add the custom x-axis labels, rotate them 90 degrees, and make them smaller
-# axis(1, at=1:length(stocks$LBp_val), labels=FALSE, xaxt ='n')
-# # indent = 10^(round(log(mean(plotvar), base = 10))-2)*5  
-# text(x=1:nrow(stocks), y=par("usr")[3] , labels=rownames(MSE_e_output), srt=90, adj=1, xpd=TRUE, cex=1)
-
-# # Add a grid for better readability
-# grid(nx = nrow(stocks) + 5)
-# legend("topleft", legend = c("Ljung-Box p-stat","0.05"), col = c("blue","red"), lty = c(1,2), lwd = 1)
-
-# dev.off() 
-
-
 
 ###################################
 ### Ljung-Box test on residuals ### 
@@ -103,7 +32,6 @@ LBresid =   unlist(
     ARMA_fit, 
     FUN = function(x){
       Box.test(x$residuals, type = 'Ljung-Box',lag = log(length(x$residuals)) )$p.value
-#      Box.test(x$residuals, type = 'Box-Pierce',lag = 5)$p.value
     }
   )
 )
@@ -318,12 +246,10 @@ modelnames = c("AR(1)-RV","HAR","HAR-AS","HAR-RSV","HAR-RSRK","RGARCH","GARCH")
 
 pdf(file = "Plots/DMpval.pdf", width = 8.27, height = 11.69) 
 
-# par(mfrow = c(1,7))
 par(mfrow = c(2,4))
 
 for(i1 in seq(from = 1, to =7)){
   modelselection = seq(from = 1, to = 7)[-i1] 
-#  print(modelselection)
   DM_box_data_e = data.frame(matrix(rep(NA, times = 7*nrow(stocks)),
                                   ncol = nrow(stocks))) 
   for(i2 in modelselection){
@@ -337,57 +263,10 @@ for(i1 in seq(from = 1, to =7)){
   abline(h = 0.95, col = "red", lwd = 4, lty = 2) 
   axis(1, at=1:6, labels=FALSE, xaxt ='n')
   axis(2, at=seq(from = 0, to = 1, by = 0.05), labels=seq(from = 0, to = 1, by = 0.05), xaxt ='n')
-  # indent = 10^(round(log(mean(plotvar), base = 10))-2)*5  
   text(x=1:6, y=par("usr")[3]+0.025 , labels=modelnames[modelselection], srt=90, adj=1, xpd=TRUE, cex=1.3)
 }
 
 dev.off() 
-
-
-
-modelnames = c("AR(1)-RV","HAR","HAR-AS","HAR-RSV","HAR-RSRK","RGARCH","ARMAGARCH")
-
-#print(
-#  xtable(
-#    DM_output("mean"), 
-#    caption = c("This table shows the means of p-values of the Diebold-Mariano test for respective combinations of models.
-#                The values below the diagonal are for rolling window forecast, the values above the diagonal are for the expanding window forecast.", 
-#      "DM test means"), 
-#    label = "Table:DM_test_mean", 
-#    digits = 2 
-#  ), 
-#  file = "Outputs/DM_test_mean.tex" 
-#)
-
-#print(
-#  xtable(
-#    DM_output("sd"), 
-#    caption = c("This table shows the standard deviations of p-values of the Diebold-Mariano test for respective combinations of models. 
-#                The values below the diagonal are for rolling window forecast, the values above the diagonal are for the expanding window forecast.", 
-#                "DM test standard deviations"), 
-#    label = "Table:DM_test_SD", 
-#    digits = 2 
-#  ), 
-#  file = "Outputs/DM_test_SD.tex" 
-#)
-
-#print(
-#  xtable(
-#    DM_output("threshold"), 
-#    caption = c("This table shows the the percentage for how many stocks the p-value of the Diebold-Mariano test was below 0.05 for respective combinations of models.
-#                The values below the diagonal are for rolling window forecast, the values above the diagonal are for the expanding window forecast.", 
-#                "DM test below 0.05"), 
-#    label = "Table:DM_test_threshold", 
-#    digits = 2 
-#  ), 
-#  file = "Outputs/DM_test_threshold.tex" 
-#)
-
-
-
-# colnames(VaRresults_output) = c("AR(1)-RV expanding", "AR(1)-RV rolling", "HAR expanding", "HAR rolling", "HAR-AS expanding", 
-#                         "HAR-AS rolling", "HAR-RSV expanding", "HAR-RSV rolling", "HAR-RSRK expanding", "HAR-RSRK rolling", 
-#                         "RGARCH expanding", "RGARCH rolling", "GARCH expanding", "GARCH rolling")
 
 
 
@@ -451,13 +330,6 @@ printbacktesting <- function(VaRresults, scheme, filename){
         plotoutput = output_r 
       }
       
-#      if(counter * measure == 15){
-#        boxplot(plotoutput, outline  = FALSE, main = colnames(VaRresults_output[[1]])[measure], cex.main = 2, xaxt = 'n', ylim = c(0, 0.012))
-#      }
-#      else{
-#        boxplot(plotoutput, outline  = FALSE, main = colnames(VaRresults_output[[1]])[measure], cex.main = 2, xaxt = 'n')
-#      }
-      
       if(measure == 5){
         boxplot(plotoutput, outline  = FALSE, main = colnames(VaRresults_output[[1]])[measure], cex.main = 2, xaxt = 'n', ylim = c(0, 0.12))
       }
@@ -483,5 +355,3 @@ printbacktesting <- function(VaRresults, scheme, filename){
 
 printbacktesting(VaRresults = VaRresults, scheme = "rolling", filename = "Plots/Backtesting_r.pdf")
 printbacktesting(VaRresults = VaRresults, scheme = "expanding", filename = "Plots/Backtesting_e.pdf")
-
-# forecast_start_date

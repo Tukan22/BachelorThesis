@@ -1,39 +1,10 @@
-n_for = 252 
-
-# pre_covid_end_date = as.Date("2020-02-03") - n_for - 3   
-
-# pre_covid_end_date = as.Date("2019-02-13")
-
-# forecast_start_date = as.Date("2019-02-15")
-
-# forecast_start_date = as.Date("2019-05-24")
-
-
 
 ### Run Jarque-Bera test for both returns and model residuals and save p-values 
-
-# This does not make sense - I don't care about normality of residuals from the variance models 
-
-# stocks$JBpval_AR1_RV_resid = rep(NA, times = nrow(stocks))
-# stocks$JBpval_HAR_resid = rep(NA, times = nrow(stocks))
-# stocks$JBpval_HAR_AS_resid = rep(NA, times = nrow(stocks))
-# stocks$JBpval_HAR_RS_resid = rep(NA, times = nrow(stocks))
-# stocks$JBpval_HAR_RSRK_resid = rep(NA, times = nrow(stocks))
-# stocks$JBpval_RGARCH_resid =rep(NA, times = nrow(stocks))
-# stocks$JBpval_ARMAGARCH_resid =rep(NA, times = nrow(stocks))  
 
 stocks$JBpval_rets = rep(NA, times = nrow(stocks))
 
 
 for(stockn in stocks$stockname){
-  # stocks[which(stocks$stockname ==stockn),"JBpval_AR1_RV_resid"]= jarque.bera.test(AR1_RV_fit[[stockn]]$residuals)$p.val
-  # stocks[which(stocks$stockname ==stockn),"JBpval_HAR_resid"]= jarque.bera.test(HAR_fit[[stockn]]$residuals)$p.val
-  # stocks[which(stocks$stockname ==stockn),"JBpval_HAR_AS_resid"]= jarque.bera.test(HARAS_fit[[stockn]]$residuals)$p.val
-  # stocks[which(stocks$stockname ==stockn),"JBpval_HAR_RS_resid"]= jarque.bera.test(HARS_fit[[stockn]]$residuals)$p.val
-  # stocks[which(stocks$stockname ==stockn),"JBpval_HAR_RSRK_resid"]= jarque.bera.test(HARSK_fit[[stockn]]$residuals)$p.val
-  # stocks[which(stocks$stockname ==stockn),"JBpval_ARMAGARCH_resid"] = jarque.bera.test(ARMAGARCH_fit[[stockn]]@fit$residuals)$p.val 
-  # stocks[which(stocks$stockname ==stockn),"JBpval_RGARCH_resid"] = jarque.bera.test(RGARCH_fit[[stockn]]@fit$residuals)$p.val 
-  
   stocks[which(stocks$stockname ==stockn),"JBpval_rets"] = jarque.bera.test(allstocks[[stockn]]$ret)$p.val 
 }
 
@@ -58,11 +29,6 @@ stocks$end_date = rep(NA, times = nrow(stocks))
 stocks$obs = rep(NA, times = nrow(stocks))
 
 for(stockn in stocks$stockname){
-#  stocks$start_date = allstocks[[stock]][1,0]
-#  stocks$end_date = allstocks[[stock]][1,0] 
-#  print(stocks[which(stocks$stockname==stockn),] )  
-#  print(stocks[[which(stocks$stockname==stockn),"start_date"]]) 
-#  print(index(allstocks[[stockn]][1,0]))
   stocks[[which(stocks$stockname==stockn),"start_date"]] = index(allstocks[[stockn]][1,0])
   stocks[[which(stocks$stockname==stockn),"end_date"]] = index(allstocks[[stockn]][nrow(allstocks[[stockn]]),0]) 
   stocks[[which(stocks$stockname==stockn),"obs"]] = nrow(allstocks[[stockn]]) 

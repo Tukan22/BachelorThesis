@@ -129,8 +129,6 @@ save(Backtests_ARMAGARCH_r, file = "Data/Backtests_ARMAGARCH_r.Rdata")
 
 save(wald_test, file = "Data/wald_test.Rdata")
 
-# save(VaRresults, file = "Data/Varresults")
-
 save(MeanVarValues_2, file = "Data/MeanVarValues_2")
 
 save(MSE_e, file = "Data/MSE_e.RData")
